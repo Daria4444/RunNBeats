@@ -3,12 +3,17 @@ package com.project.RunNBeats.controller;
 import com.project.RunNBeats.model.Run;
 import com.project.RunNBeats.service.RunServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping(path = "api/v1/run")
+@CrossOrigin
 public class RunController {
     private RunServiceImpl runServiceImpl;
 
@@ -43,5 +48,13 @@ public class RunController {
     public String deleteRun(@PathVariable int runId) {
         runServiceImpl.deleteRun(runId);
         return "Run deleted";
+    }
+
+    @GetMapping("/runner/{runnerId}")
+    public Page<Run> getRunsByRunner(@PathVariable int runnerId,
+                                     @RequestParam(defaultValue = "0") int page,
+                                     @RequestParam(defaultValue = "5") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("runId").descending());
+        return runServiceImpl.findByRunner_RunnerId(runnerId, pageable);
     }
 }

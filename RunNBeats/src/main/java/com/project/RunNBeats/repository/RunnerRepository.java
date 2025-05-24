@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface RunnerRepository extends JpaRepository<Runner, Integer>{
     Optional<Runner> findByUsername(String username);
+    Optional<Runner> findByUsernameAndPassword(String username, String password);
 }
