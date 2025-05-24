@@ -4,7 +4,9 @@ import com.project.RunNBeats.errors.ResourceNotFoundException;
 import com.project.RunNBeats.model.Run;
 import com.project.RunNBeats.model.Runner;
 import com.project.RunNBeats.repository.RunRepository;
+import org.springframework.data.domain.Page;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +26,11 @@ public class RunServiceImpl {
                 .orElseThrow(() -> new RuntimeException("Run not found with id: " + runId));
 
     }
+
+    public Page<Run> findByRunner_RunnerId(int runnerId, Pageable pageable) {
+        return runRepository.findByRunner_RunnerId(runnerId, pageable);
+    }
+
 
     public Run addRun(Run run) {return runRepository.save(run);
     }
