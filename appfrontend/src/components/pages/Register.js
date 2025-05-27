@@ -17,7 +17,7 @@ export default function Register() {
 
   const handleSubmit = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/v1/runner/add', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/v1/runner/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),

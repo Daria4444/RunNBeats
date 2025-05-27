@@ -18,7 +18,7 @@ export default function Myruns() {
   const fetchRuns = async (pageNumber) => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:8080/api/v1/run/runner/${runnerId}?page=${pageNumber - 1}&size=5`);
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/v1/run/runner/${runnerId}?page=${pageNumber - 1}&size=5`);
       const data = await res.json();
       setRuns(data.content);
       setTotalPages(data.totalPages);
