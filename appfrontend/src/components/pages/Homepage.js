@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Box } from '@mui/material';
+import { Button, Box, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 export default function Homepage() {
@@ -10,93 +10,87 @@ export default function Homepage() {
       sx={{
         position: 'relative',
         height: '100vh',
-        backgroundColor: 'white',
+        width: '100%',
+        backgroundImage: `url(/runners.jpg)`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
         display: 'flex',
-        justifyContent: 'center',
         alignItems: 'center',
+        justifyContent: 'center',
+        color: 'white',
+        textAlign: 'center',
       }}
     >
-      {/* Fundal */}
+      {/* Overlay negru transparent */}
       <Box
-        component="img"
-        src="/runners.jpg"
-        alt="Background"
         sx={{
           position: 'absolute',
+          top: 0,
+          left: 0,
           width: '100%',
-          height: 'auto',
-          maxHeight: '100%',
-          opacity: 0.15,
+          height: '100%',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
           zIndex: 0,
         }}
       />
 
-      {/* Conținut */}
+      {/* Conținut principal */}
       <Box
         sx={{
           position: 'relative',
           zIndex: 1,
+          maxWidth: '600px',
+          px: 3,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '30px',
+          gap: 4,
         }}
       >
-        {/* Buton principal */}
-        <Button
-          variant="contained"
-          sx={{
-            backgroundColor: '#5D63D1',
-            borderRadius: '12px',
-            padding: '12px 24px',
-            fontWeight: 600,
-            fontSize: '16px',
-            '&:hover': {
-              backgroundColor: '#4f46e5',
-            },
-          }}
-        >
-          Let’s get started
-        </Button>
+        <Typography variant="h3" fontWeight="bold">
+          RunNBeats
+        </Typography>
+        <Typography variant="h6" sx={{ opacity: 0.85 }}>
+          Turn up. Tune in. Take off.
+        </Typography>
 
-        {/* Login & Register */}
-        <Box
-          sx={{
-            display: 'flex',
-            gap: '20px',
-          }}
-        >
+        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
           <Button
             variant="contained"
+            size="large"
             onClick={() => navigate('/login')}
             sx={{
-              backgroundColor: '#5D63D1',
+              backgroundColor: 'rgba(93, 99, 209, 0.7)', // mov transparent
+              color: 'white',
+              px: 4,
+              py: 1.5,
+              fontWeight: 'bold',
               borderRadius: '12px',
-              padding: '12px 24px',
-              fontWeight: 600,
-              fontSize: '16px',
               '&:hover': {
-                backgroundColor: '#4f46e5',
+                backgroundColor: 'rgba(93, 99, 209, 0.9)', // mai puțin transparent la hover
               },
             }}
           >
-            LOGIN
+            Login
           </Button>
+
           <Button
             variant="contained"
+            size="large"
             onClick={() => navigate('/register')}
             sx={{
-              backgroundColor: '#5D63D1',
+              backgroundColor: 'rgba(93, 99, 209, 0.7)',
+              color: 'white',
+              px: 4,
+              py: 1.5,
+              fontWeight: 'bold',
               borderRadius: '12px',
-              padding: '12px 24px',
-              fontWeight: 600,
-              fontSize: '16px',
               '&:hover': {
-                backgroundColor: '#4f46e5',
+                backgroundColor: 'rgba(93, 99, 209, 0.)',
               },
             }}
           >
-            REGISTER
+            Register
           </Button>
         </Box>
       </Box>

@@ -1,26 +1,37 @@
 import React, { useState } from 'react';
-import { Box, Button, TextField, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  InputAdornment,
+  Alert,
+  CircularProgress
+} from '@mui/material';
+import { AccountCircle, Lock } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({ username: '', password: '' });
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-  });
-
-  const handleChange = (e) => {
+  const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   const handleLogin = async () => {
+    setLoading(true);
+    setErrorMsg('');
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/v1/runner/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/v1/runner/login`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        }
+      );
 
       const result = await response.json();
       console.log('Login response:', response.status, result);
@@ -29,11 +40,13 @@ export default function Login() {
         localStorage.setItem('runnerId', result.runnerId);
         navigate('/dashboard');
       } else {
-        alert('Invalid username or password');
+        setErrorMsg('Username sau parolă incorecte');
       }
     } catch (error) {
       console.error('Login error:', error);
-      alert('Server error!');
+      setErrorMsg('Eroare server. Încearcă mai târziu.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -41,28 +54,32 @@ export default function Login() {
     <Box
       sx={{
         minHeight: '100vh',
-        backgroundColor: '#f5f5f5',
+        background: `url(https://source.unsplash.com/featured/?fitness,runner) center/cover no-repeat`,
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
+        p: 2,
       }}
     >
       <Box
         sx={{
+          backdropFilter: 'blur(12px)',
+          backgroundColor: 'rgba(255,255,255,0.85)',
+          borderRadius: 4,
+          boxShadow: 6,
           width: '100%',
-          maxWidth: '400px',
-          backgroundColor: 'white',
-          padding: '32px',
-          borderRadius: '12px',
-          boxShadow: 3,
+          maxWidth: 400,
+          p: 4,
           display: 'flex',
           flexDirection: 'column',
-          gap: '20px',
+          gap: 3,
         }}
       >
-        <Typography variant="h5" fontWeight={600} textAlign="center">
-          Log in
+        <Typography variant="h5" fontWeight={600} textAlign="center" color='#5D63D1'>
+          Welcome back
         </Typography>
+
+        {errorMsg && <Alert severity="error">{errorMsg}</Alert>}
 
         <TextField
           label="Username"
@@ -70,6 +87,13 @@ export default function Login() {
           value={formData.username}
           onChange={handleChange}
           fullWidth
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <AccountCircle />
+              </InputAdornment>
+            ),
+          }}
         />
         <TextField
           label="Password"
@@ -78,22 +102,35 @@ export default function Login() {
           value={formData.password}
           onChange={handleChange}
           fullWidth
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Lock />
+              </InputAdornment>
+            ),
+          }}
         />
 
         <Button
           variant="contained"
+          size="large"
           onClick={handleLogin}
-          sx={{
-            backgroundColor: '#5D63D1',
-            padding: '12px',
-            fontWeight: 600,
-            '&:hover': {
-              backgroundColor: '#4f46e5',
-            },
-          }}
+          disabled={loading}
+          sx={{ fontWeight: 'bold', backgroundColor: '#5D63D1' }}
         >
-          Login
+          {loading ? <CircularProgress size={24} color="inherit" /> : 'Login'}
         </Button>
+
+        <Typography variant="body2" textAlign="center">
+          Don't have an account?{' '}
+          <span
+          onClick={() => navigate('/register')}
+          style={{ color: '#5D63D1', fontWeight: 'bold', cursor: 'pointer' }}
+          >
+          Sign up
+          </span>
+        </Typography>
+
       </Box>
     </Box>
   );
