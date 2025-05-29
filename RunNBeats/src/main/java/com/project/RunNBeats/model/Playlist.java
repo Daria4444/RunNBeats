@@ -13,6 +13,7 @@ public class Playlist {
     @JoinColumn(name = "runner_id", nullable = false)
     @JsonIgnore
     private Runner runner;
+    private String link;
     private String playlistName;
     private PlaylistType  playlistType;
 
@@ -26,6 +27,14 @@ public class Playlist {
 
     public Runner getRunner() {
         return runner;
+    }
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
     }
 
     public void setRunner(Runner runner) {

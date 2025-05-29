@@ -28,7 +28,6 @@ public class RunnerController {
     @Autowired
     private EmailService emailService;
 
-
     RunnerServiceImpl runnerServiceImp;
 
     @Autowired

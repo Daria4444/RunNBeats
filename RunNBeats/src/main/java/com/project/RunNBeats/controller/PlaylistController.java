@@ -1,5 +1,6 @@
 package com.project.RunNBeats.controller;
 
+import com.project.RunNBeats.dto.PlaylistRequest;
 import com.project.RunNBeats.model.Playlist;
 import com.project.RunNBeats.service.PlaylistServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,14 +24,19 @@ public class PlaylistController {
         return playlistServiceImpl.getPlaylists();
     }
 
+    @GetMapping(path = "/get/{runnerId}/playlists")
+    public List<Playlist> getPlaylistsByRunnerId(@PathVariable int runnerId) {
+        return playlistServiceImpl.getPlaylistsByRunnerId(runnerId);
+    }
+
     @GetMapping(path = "/get/{playlistId}")
     public Playlist getPlaylistById(@PathVariable int playlistId) {
         return playlistServiceImpl.getPlaylistById(playlistId);
     }
 
     @PostMapping(path = "/add")
-    public String addPlaylist(@RequestBody Playlist playlist) {
-        playlistServiceImpl.addPlaylist(playlist);
+    public String addPlaylist(@RequestBody PlaylistRequest playlistRequest) {
+        playlistServiceImpl.addPlaylist(playlistRequest);
         return "Playlist added";
     }
 
