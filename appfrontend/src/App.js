@@ -10,10 +10,12 @@ import Dashboard from './components/pages/Dashboard';
 import Feedback from './components/pages/Feedback';
 import Myruns from './components/pages/Myruns';
 import Myplaylists from './components/pages/Myplaylists';
+import { UserProvider } from './context/UserContext';
 
 function App() {
   return (
-    <Router>
+    <UserProvider>
+      <Router>
       <Routes>
         {/* Pagini fără NavBar */}
         <Route path="/" element={<Homepage />} />
@@ -31,6 +33,8 @@ function App() {
         </Route>
       </Routes>
     </Router>
+    </UserProvider>
+    
   );
 }
 
