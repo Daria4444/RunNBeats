@@ -4,6 +4,7 @@ import com.project.RunNBeats.dto.PlaylistRequest;
 import com.project.RunNBeats.model.Playlist;
 import com.project.RunNBeats.service.PlaylistServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,10 +36,11 @@ public class PlaylistController {
     }
 
     @PostMapping(path = "/add")
-    public String addPlaylist(@RequestBody PlaylistRequest playlistRequest) {
-        playlistServiceImpl.addPlaylist(playlistRequest);
-        return "Playlist added";
+    public ResponseEntity<Playlist> addPlaylist(@RequestBody PlaylistRequest playlistRequest) {
+        Playlist playlist = playlistServiceImpl.addPlaylist(playlistRequest);
+        return ResponseEntity.ok(playlist);
     }
+
 
     @PutMapping(path = "/put/{playlistId}")
     public String updatePlaylist(@PathVariable int playlistId, @RequestBody Playlist playlist) {
