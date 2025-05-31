@@ -1,5 +1,6 @@
 package com.project.RunNBeats.controller;
 
+import com.project.RunNBeats.dto.RunDto;
 import com.project.RunNBeats.model.Run;
 import com.project.RunNBeats.service.RunServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,9 +35,9 @@ public class RunController {
     }
 
     @PostMapping(path = "/add")
-    public String addRun(@RequestBody Run run) {
-        runServiceImpl.addRun(run);
-        return "Run added";
+    public ResponseEntity<Run> addRun(@RequestBody RunDto runDto) {
+        Run run = runServiceImpl.addRun(runDto);
+        return ResponseEntity.ok(run);
     }
 
     @PutMapping(path = "/put/{runId}")
@@ -50,8 +52,13 @@ public class RunController {
         return "Run deleted";
     }
 
+    @GetMapping("/api/runs/{id}/map")
+    public ResponseEntity<byte[]> getRunMapImage(@PathVariable int id) {
+        return runServiceImpl.getRunMapImage(id);
+    }
+
     @GetMapping("/runner/{runnerId}")
-    public Page<Run> getRunsByRunner(@PathVariable int runnerId,
+    public Page<RunDto> getRunsByRunner(@PathVariable int runnerId,
                                      @RequestParam(defaultValue = "0") int page,
                                      @RequestParam(defaultValue = "5") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("runId").descending());

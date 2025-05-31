@@ -2,7 +2,8 @@ package com.project.RunNBeats.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import java.time.LocalTime;
+
+import java.time.Instant;
 
 @Entity
 public class Run {
@@ -15,10 +16,16 @@ public class Run {
     @JsonIgnore
     private Runner runner;
 
-    private Double distance;
-    private Double runTime;
-    private Double averagePace;
-    private String runLocation;
+    private Double distance;          // în metri
+    private Integer duration;         // în secunde
+    private Double averageSpeed;      // în m/s
+    private String pace;              // ex: "5:12 /km"
+    private Instant timestamp;        // momentul alergării
+    private String path;              // JSON serializat cu coordonatele GPS
+    @Lob
+    @Column(columnDefinition = "LONGBLOB") // pentru MySQL; sau BYTEA în PostgreSQL
+    private byte[] mapImage;
+    // nume fișier PNG salvat pe server
 
     public Run() {
     }
@@ -47,27 +54,51 @@ public class Run {
         this.distance = distance;
     }
 
-    public Double getRunTime() {
-        return runTime;
+    public Integer getDuration() {
+        return duration;
     }
 
-    public void setRunTime(Double runTime) {
-        this.runTime = runTime;
+    public void setDuration(Integer duration) {
+        this.duration = duration;
     }
 
-    public Double getAveragePace() {
-        return averagePace;
+    public Double getAverageSpeed() {
+        return averageSpeed;
     }
 
-    public void setAveragePace(Double averagePace) {
-        this.averagePace = averagePace;
+    public void setAverageSpeed(Double averageSpeed) {
+        this.averageSpeed = averageSpeed;
     }
 
-    public String getRunLocation() {
-        return runLocation;
+    public String getPace() {
+        return pace;
     }
 
-    public void setRunLocation(String runLocation) {
-        this.runLocation = runLocation;
+    public void setPace(String pace) {
+        this.pace = pace;
+    }
+
+    public Instant getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Instant timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public byte[] getMapImage() {
+        return mapImage;
+    }
+
+    public void setMapImage(byte[] mapImagePath) {
+        this.mapImage = mapImagePath;
     }
 }
