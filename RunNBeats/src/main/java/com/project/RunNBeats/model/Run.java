@@ -23,7 +23,7 @@ public class Run {
     private Instant timestamp;        // momentul alergării
     private String path;              // JSON serializat cu coordonatele GPS
     @Lob
-    @Column(columnDefinition = "map_image") // pentru MySQL; sau BYTEA în PostgreSQL
+    @Column(columnDefinition = "BYTEA") // pentru MySQL; sau BYTEA în PostgreSQL
     private byte[] mapImage;
     // nume fișier PNG salvat pe server
 
