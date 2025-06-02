@@ -1,5 +1,6 @@
 package com.project.RunNBeats.controller;
 
+import com.project.RunNBeats.dto.RunAchievementDto;
 import com.project.RunNBeats.dto.RunDto;
 import com.project.RunNBeats.model.Run;
 import com.project.RunNBeats.service.RunServiceImpl;
@@ -35,9 +36,9 @@ public class RunController {
     }
 
     @PostMapping(path = "/add")
-    public ResponseEntity<Run> addRun(@RequestBody RunDto runDto) {
-        Run run = runServiceImpl.addRun(runDto);
-        return ResponseEntity.ok(run);
+    public ResponseEntity<RunAchievementDto> addRun(@RequestBody RunDto runDto) {
+        RunAchievementDto runAchievementDto = runServiceImpl.addRun(runDto);
+        return ResponseEntity.ok(runAchievementDto);
     }
 
     @PutMapping(path = "/put/{runId}")

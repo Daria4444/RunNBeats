@@ -2,8 +2,10 @@ package com.project.RunNBeats.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.RunNBeats.dto.RunAchievementDto;
 import com.project.RunNBeats.dto.RunDto;
 import com.project.RunNBeats.errors.ResourceNotFoundException;
+import com.project.RunNBeats.model.Achievement;
 import com.project.RunNBeats.model.Run;
 import com.project.RunNBeats.model.Runner;
 import com.project.RunNBeats.repository.AchievementRepository;
@@ -83,7 +85,7 @@ public class RunServiceImpl {
     }
 
 
-    public Run addRun(RunDto runDto) {
+    public RunAchievementDto addRun(RunDto runDto) {
         Run run = new Run();
         run.setDistance(runDto.getDistance());
         run.setDuration(runDto.getDuration());
@@ -115,8 +117,12 @@ public class RunServiceImpl {
         run.setRunner(runner);
         runRepository.save(run);
 
-        achievementService.evaluateAchievements(runner, run);
-        return run;
+        List<Achievement> newlyUnlocked = achievementService.evaluateAchievements(runner, run);
+        RunAchievementDto runAchievementDto = new RunAchievementDto();
+        runAchievementDto.setRun(run);
+        runAchievementDto.setNewlyUnlockedAchievements(newlyUnlocked);
+
+        return runAchievementDto;
     }
 
     public Run updateRun(int runId, Run run) {

@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class AchievementService {
@@ -32,41 +34,61 @@ public class AchievementService {
         this.runnerRepository = runnerRepository;
     }
 
-    public void evaluateAchievements(Runner runner, Run run) {
+    public List<Achievement> evaluateAchievements(Runner runner, Run run) {
+        List<Achievement> unlocked = new ArrayList<>();
+
         updateData(runner, run);
-        checkSingleRunDistance(runner, run);
-        checkTotalDistance(runner);
-        checkAveragePace(runner, run);
+
+        unlocked.addAll(checkSingleRunDistance(runner, run));
+        unlocked.addAll(checkTotalDistance(runner));
+        unlocked.addAll(checkAveragePace(runner, run));
+
+        return unlocked;
     }
 
-    private void checkSingleRunDistance(Runner runner, Run run) {
+    private List<Achievement> checkSingleRunDistance(Runner runner, Run run) {
+        List<Achievement> unlocked = new ArrayList<>();
         var achievements = achievementRepository.findByType(AchievementType.SINGLE_RUN_DISTANCE);
         for (var a : achievements) {
             if (run.getDistance() >= a.getTargetValue()) {
-                unlockIfNotYet(runner, a);
+                if (unlockIfNotYet(runner, a)) {
+                    unlocked.add(a);
+                }
             }
         }
+        return unlocked;
     }
 
-    private void checkTotalDistance(Runner runner) {
+
+    private List<Achievement> checkTotalDistance(Runner runner) {
+        List<Achievement> unlocked = new ArrayList<>();
         var achievements = achievementRepository.findByType(AchievementType.TOTAL_DISTANCE);
         for (var a : achievements) {
             if (runner.getTotalDistance() >= a.getTargetValue()) {
-                unlockIfNotYet(runner, a);
+                if (unlockIfNotYet(runner, a)) {
+                    unlocked.add(a);
+                }
             }
         }
+        return unlocked;
     }
 
-    private void checkAveragePace(Runner runner, Run run) {
+
+    private List<Achievement> checkAveragePace(Runner runner, Run run) {
+        List<Achievement> unlocked = new ArrayList<>();
         var achievements = achievementRepository.findByType(AchievementType.AVERAGE_PACE);
         for (var a : achievements) {
-            if (run.getPace() <= a.getTargetValue()) {
-                unlockIfNotYet(runner, a);
+            if (run.getPace()<= a.getTargetValue()) {
+                if (unlockIfNotYet(runner, a)) {
+                    unlocked.add(a);
+                }
             }
         }
+        return unlocked;
     }
 
-    private void unlockIfNotYet(Runner runner, Achievement achievement) {
+
+    private boolean unlockIfNotYet(Runner runner, Achievement achievement) {
         if (!userAchievementRepository.existsByRunnerAndAchievement(runner, achievement)) {
             RunnerAchievement ua = new RunnerAchievement();
             ua.setRunner(runner);
@@ -79,8 +101,12 @@ public class AchievementService {
                     achievement.getType(),
                     achievement.getLevel(),
                     runner.getRunnerId());
+
+            return true;
         }
+        return false;
     }
+
 
     private void updateData(Runner runner, Run run) {
         double updatedDistance = runner.getTotalDistance() + run.getDistance();
