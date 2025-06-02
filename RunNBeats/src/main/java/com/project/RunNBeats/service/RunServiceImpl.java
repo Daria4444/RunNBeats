@@ -6,6 +6,7 @@ import com.project.RunNBeats.dto.RunDto;
 import com.project.RunNBeats.errors.ResourceNotFoundException;
 import com.project.RunNBeats.model.Run;
 import com.project.RunNBeats.model.Runner;
+import com.project.RunNBeats.repository.AchievementRepository;
 import com.project.RunNBeats.repository.RunRepository;
 import com.project.RunNBeats.repository.RunnerRepository;
 import org.springframework.data.domain.Page;
@@ -26,11 +27,13 @@ import java.util.List;
 public class RunServiceImpl {
     private final RunRepository runRepository;
     private final RunnerRepository runnerRepository;
+    private final AchievementService achievementService;
 
     @Autowired
-    public RunServiceImpl(RunRepository runRepository, RunnerRepository runnerRepository) {
+    public RunServiceImpl(RunRepository runRepository, RunnerRepository runnerRepository, AchievementService achievementService) {
         this.runRepository = runRepository;
         this.runnerRepository = runnerRepository;
+        this.achievementService = achievementService;
     }
     public List<Run> getRuns (){ return runRepository.findAll();}
 
@@ -46,17 +49,17 @@ public class RunServiceImpl {
     }
 
     public ResponseEntity<byte[]> getRunMapImage(int id) {
-        Run run = runRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+            Run run = runRepository.findById(id)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        byte[] imageData = run.getMapImage();
-        if (imageData == null || imageData.length == 0) {
-            throw new ResponseStatusException(HttpStatus.NO_CONTENT, "No map image");
-        }
+            byte[] imageData = run.getMapImage();
+            if (imageData == null || imageData.length == 0) {
+                throw new ResponseStatusException(HttpStatus.NO_CONTENT, "No map image");
+            }
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.IMAGE_PNG);
-        return new ResponseEntity<>(imageData, headers, HttpStatus.OK);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.IMAGE_PNG);
+            return new ResponseEntity<>(imageData, headers, HttpStatus.OK);
     }
 
     private RunDto convertToDto(Run run) {
@@ -65,7 +68,7 @@ public class RunServiceImpl {
         dto.setDistance(run.getDistance());
         dto.setDuration(run.getDuration().intValue());
         dto.setAverageSpeed(run.getAverageSpeed());
-        dto.setPace(run.getPace() != null ? run.getPace() : null);
+        dto.setPace(run.getPace());
         dto.setTimestamp(run.getTimestamp().toString());
         dto.setMapImageUrl("/api/runs/" + run.getRunId() + "/map");
 
@@ -110,7 +113,10 @@ public class RunServiceImpl {
         Runner runner = runnerRepository.findById(runDto.getRunnerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Runner not found"));
         run.setRunner(runner);
-        return runRepository.save(run);
+        runRepository.save(run);
+
+        achievementService.evaluateAchievements(runner, run);
+        return run;
     }
 
     public Run updateRun(int runId, Run run) {

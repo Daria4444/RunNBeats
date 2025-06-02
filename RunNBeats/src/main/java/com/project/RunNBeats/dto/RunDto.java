@@ -7,7 +7,7 @@ public class RunDto {
     private double distance;               // în metri
     private int duration;                  // în secunde
     private double averageSpeed;           // în m/s
-    private String pace;                   // ex: "5:12 /km"
+    private double pace;                   // ex: "5:12 /km"
     private List<List<Double>> path;       // List de [lat, lon]
     private String timestamp;              // ISO 8601
     private String mapImage;               // imaginea hărții în base64
@@ -32,8 +32,13 @@ public class RunDto {
     public double getAverageSpeed() { return averageSpeed; }
     public void setAverageSpeed(double averageSpeed) { this.averageSpeed = averageSpeed; }
 
-    public String getPace() { return pace; }
-    public void setPace(String pace) { this.pace = pace; }
+    public double getPace() {
+        return pace;
+    }
+
+    public void setPace(double pace) {
+        this.pace = pace;
+    }
 
     public List<List<Double>> getPath() { return path; }
     public void setPath(List<List<Double>> path) { this.path = path; }
