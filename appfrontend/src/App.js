@@ -10,6 +10,7 @@ import Dashboard from './components/pages/Dashboard';
 import Feedback from './components/pages/Feedback';
 import Myruns from './components/pages/Myruns';
 import Myplaylists from './components/pages/Myplaylists';
+import Run from './components/pages/Run';
 import { UserProvider } from './context/UserContext';
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/myruns" element={<Myruns />} />
           <Route path="/myplaylists" element={<Myplaylists />} />
+          <Route path="/run" element={<Run />} />
         </Route>
       </Routes>
     </Router>

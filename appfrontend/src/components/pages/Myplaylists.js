@@ -13,13 +13,13 @@ import {
 import LibraryMusicIcon from '@mui/icons-material/LibraryMusic';
 
 const MyPlaylists = () => {
-  const [spotifyLink, setSpotifyLink] = useState('');
+  const [youtubeLink, setYoutubeLink] = useState('');
   const [playlists, setPlaylists] = useState([]);
   const [loading, setLoading] = useState(false);
   const runnerId = localStorage.getItem('runnerId');
 
-  const extractPlaylistId = (url) => {
-    const regex = /playlist\/([a-zA-Z0-9]+)(\?|$)/;
+  const extractYouTubePlaylistId = (url) => {
+    const regex = /[?&]list=([a-zA-Z0-9_-]+)/;
     const match = url.match(regex);
     return match ? match[1] : null;
   };
@@ -33,15 +33,15 @@ const MyPlaylists = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const id = extractPlaylistId(spotifyLink);
+    const id = extractYouTubePlaylistId(youtubeLink);
     if (!id) {
-      alert("Linkul nu pare valid.");
+      alert("Linkul nu pare un playlist YouTube valid.");
       return;
     }
 
     const payload = {
       runnerId: runnerId,
-      link: spotifyLink,
+      link: youtubeLink,
       playlistType: 'BOOST',
     };
 
@@ -56,7 +56,7 @@ const MyPlaylists = () => {
       const newPlaylist = await res.json();
       if (res.ok) {
         setPlaylists((prev) => [...prev, newPlaylist]);
-        setSpotifyLink('');
+        setYoutubeLink('');
       } else {
         alert("Eroare la salvarea playlistului.");
       }
@@ -72,7 +72,7 @@ const MyPlaylists = () => {
       <Stack direction="row" alignItems="center" spacing={1} justifyContent="center" mb={4}>
         <LibraryMusicIcon sx={{ fontSize: 32, color: '#5D63D1' }} />
         <Typography variant="h4" fontWeight={600}>
-          My Playlists
+          My YouTube Playlists
         </Typography>
       </Stack>
 
@@ -90,9 +90,9 @@ const MyPlaylists = () => {
         <TextField
           fullWidth
           variant="outlined"
-          label="Spotify playlist link"
-          value={spotifyLink}
-          onChange={(e) => setSpotifyLink(e.target.value)}
+          label="YouTube playlist link"
+          value={youtubeLink}
+          onChange={(e) => setYoutubeLink(e.target.value)}
         />
 
         <Button
@@ -126,7 +126,7 @@ const MyPlaylists = () => {
       ) : (
         <Grid container spacing={3}>
           {playlists.map((playlist) => {
-            const pid = extractPlaylistId(playlist.link);
+            const pid = extractYouTubePlaylistId(playlist.link);
             return (
               pid && (
                 <Grid item xs={12} sm={6} md={4} key={playlist.playlistId}>
@@ -140,12 +140,12 @@ const MyPlaylists = () => {
                   >
                     <CardContent sx={{ p: 0 }}>
                       <iframe
-                        src={`https://open.spotify.com/embed/playlist/${pid}`}
                         width="100%"
                         height="380"
+                        src={`https://www.youtube.com/embed/videoseries?list=${pid}`}
                         frameBorder="0"
                         allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                        loading="lazy"
+                        allowFullScreen
                         title={`Playlist ${playlist.playlistId}`}
                       ></iframe>
                     </CardContent>
