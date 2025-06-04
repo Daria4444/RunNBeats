@@ -78,7 +78,7 @@ public class AchievementService {
         List<Achievement> unlocked = new ArrayList<>();
         var achievements = achievementRepository.findByType(AchievementType.AVERAGE_PACE);
         for (var a : achievements) {
-            if (run.getPace()<= a.getTargetValue()) {
+            if (run.getPace() > a.getTargetValue()) {
                 if (unlockIfNotYet(runner, a)) {
                     unlocked.add(a);
                 }
