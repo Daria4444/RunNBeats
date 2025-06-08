@@ -5,6 +5,8 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import { Link as RouterLink } from 'react-router-dom';
+import IconButton from '@mui/material/IconButton';
+import SearchIcon from '@mui/icons-material/Search';
 
 const NavBar = () => {
   return (
@@ -14,20 +16,25 @@ const NavBar = () => {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             MyApp
           </Typography>
-          <Button color="inherit" component={RouterLink} to="/">
-            Logout
+
+          <IconButton color="inherit" component={RouterLink} to="/search">
+            <SearchIcon />
+          </IconButton>
+
+          <Button color="inherit" component={RouterLink} to="/run">
+            Run
           </Button>
-          <Button color="inherit" component={RouterLink} to="/profile">
-            Profile
+          <Button color="inherit" component={RouterLink} to="/feedback">
+            Feedback
           </Button>
           <Button color="inherit" component={RouterLink} to="/settings">
             Settings
           </Button>
-          <Button color="inherit" component={RouterLink} to="/feedback">
-            feedback
+          <Button color="inherit" component={RouterLink} to="/profile">
+            Profile
           </Button>
-          <Button color="inherit" component={RouterLink} to="/run">
-            run
+          <Button color="inherit" component={RouterLink} to="/">
+            Logout
           </Button>
         </Toolbar>
       </AppBar>

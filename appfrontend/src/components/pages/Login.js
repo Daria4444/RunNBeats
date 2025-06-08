@@ -38,7 +38,7 @@ export default function Login() {
 
       if (response.ok) {
         localStorage.setItem('runnerId', result.runnerId);
-        navigate('/dashboard');
+        navigate('/feedPage');
       } else {
         setErrorMsg('Username sau parolă incorecte');
       }

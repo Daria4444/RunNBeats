@@ -37,6 +37,8 @@ const Run = () => {
   const [unlockedAchievements, setUnlockedAchievements] = useState([]);
   const [achievementDialogOpen, setAchievementDialogOpen] = useState(false);
   const runnerId = localStorage.getItem('runnerId');
+  const CLOUDINARY_UPLOAD_URL = "https://api.cloudinary.com/v1_1/dw9vaqeyh/image/upload";
+  const CLOUDINARY_UPLOAD_PRESET = "runnbeats_unsigned";
 
   const deg2rad = deg => deg * (Math.PI / 180);
 
@@ -120,43 +122,60 @@ const Run = () => {
   };
 
   const handleSaveRun = async () => {
-    const paceSecondsPerKm = (elapsed && totalDistance > 0) ? (elapsed / (totalDistance / 1000)) : 0;
+  const paceSecondsPerKm = (elapsed && totalDistance > 0) ? (elapsed / (totalDistance / 1000)) : 0;
 
-    const runData = {
-      distance: totalDistance,
-      duration: elapsed,
-      pace: paceSecondsPerKm / 60,
-      averageSpeed: totalDistance / (elapsed || 1),
-      path: path,
-      timestamp: new Date().toISOString(),
-      runnerId: runnerId
-    };
+  const runData = {
+    distance: totalDistance,
+    duration: elapsed,
+    pace: paceSecondsPerKm / 60,
+    averageSpeed: totalDistance / (elapsed || 1),
+    path: path,
+    timestamp: new Date().toISOString(),
+    runnerId: runnerId,
+    mapImageUrl: null
+  };
 
+  try {
     const mapElement = document.getElementById("map");
     if (mapElement) {
       const canvas = await html2canvas(mapElement);
-      const imageData = canvas.toDataURL("image/png");
-      runData.mapImage = imageData;
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+      const formData = new FormData();
+      formData.append("file", blob);
+      formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+      const uploadRes = await fetch(CLOUDINARY_UPLOAD_URL, {
+        method: "POST",
+        body: formData
+      });
+
+      const uploadData = await uploadRes.json();
+      runData.mapImageUrl = uploadData.secure_url;
+      console.log("Run ul trimis la backend" + runData);
     }
 
-    fetch(`${process.env.REACT_APP_API_URL}/api/v1/run/add`, {
+
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/api/v1/run/add`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(runData),
-    })
-      .then(res => res.json())
-      .then(data => {
-        console.log("Răspuns de la backend:", data);
-        if (data.newlyUnlockedAchievements && data.newlyUnlockedAchievements.length > 0) {
-          setUnlockedAchievements(data.newlyUnlockedAchievements);
-          setAchievementDialogOpen(true);
-        }
-        console.log("Run saved:", data);
-      })
-      .catch(err => console.error("Error saving run:", err));
+    });
 
-    setSaveDialogOpen(false);
-  };
+    const data = await res.json();
+    console.log("Run saved:", data);
+
+    if (data.newlyUnlockedAchievements?.length > 0) {
+      setUnlockedAchievements(data.newlyUnlockedAchievements);
+      setAchievementDialogOpen(true);
+    }
+
+  } catch (err) {
+    console.error("Error saving run:", err);
+  }
+
+  setSaveDialogOpen(false);
+};
+
 
   useEffect(() => {
     if (!mapRef.current || mapInstance.current) return;

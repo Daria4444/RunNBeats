@@ -6,12 +6,14 @@ import Login from './components/pages/Login';
 import Register from './components/pages/Register';
 import Profile from './components/pages/Profile';
 import Settings from './components/pages/Settings';
-import Dashboard from './components/pages/Dashboard';
+import Dashboard from './components/pages/FeedPage';
 import Feedback from './components/pages/Feedback';
 import Myruns from './components/pages/Myruns';
 import Myplaylists from './components/pages/Myplaylists';
+import SearchUsers from './components/pages/SearchUsers';
 import Run from './components/pages/Run';
 import { UserProvider } from './context/UserContext';
+import FeedPage from './components/pages/FeedPage';
 
 function App() {
   return (
@@ -27,11 +29,13 @@ function App() {
         <Route element={<Layout />}>
           <Route path="/profile" element={<Profile />} />
           <Route path="/settings" element={<Settings />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/feedPage" element={<FeedPage />} />
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/myruns" element={<Myruns />} />
           <Route path="/myplaylists" element={<Myplaylists />} />
           <Route path="/run" element={<Run />} />
+          <Route path="/search" element={<SearchUsers />} />
+          <Route path="/profile/:runnerId" element={<Profile />} />
         </Route>
       </Routes>
     </Router>
