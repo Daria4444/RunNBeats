@@ -99,6 +99,7 @@ public class RunServiceImpl {
 
 
     public RunAchievementDto addRun(RunDto runDto) {
+        System.out.println("adaugam acest Run" + runDto);
         Run run = new Run();
         run.setDistance(runDto.getDistance());
         run.setDuration(runDto.getDuration());
