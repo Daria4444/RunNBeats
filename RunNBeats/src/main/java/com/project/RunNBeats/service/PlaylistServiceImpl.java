@@ -3,17 +3,14 @@ package com.project.RunNBeats.service;
 import com.project.RunNBeats.dto.PlaylistRequest;
 import com.project.RunNBeats.errors.ResourceNotFoundException;
 import com.project.RunNBeats.model.Playlist;
-import com.project.RunNBeats.model.Run;
 import com.project.RunNBeats.model.Runner;
 import com.project.RunNBeats.repository.PlaylistRepository;
 import com.project.RunNBeats.repository.RunnerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class PlaylistServiceImpl {

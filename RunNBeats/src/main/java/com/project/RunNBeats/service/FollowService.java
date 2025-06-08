@@ -7,6 +7,9 @@ import com.project.RunNBeats.repository.RunnerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 @Service
 public class FollowService {
 
@@ -54,6 +57,28 @@ public class FollowService {
                 .orElseThrow(() -> new RuntimeException("Followed user not found"));
 
         return followRepository.existsByFollowerAndFollowed(follower, followed);
+    }
+
+    public boolean toggleFollow(int followerId, int followedId) {
+        Optional<Follow> existing = followRepository.findByFollowerRunnerIdAndFollowedRunnerId(followerId, followedId);
+
+        if (existing.isPresent()) {
+            followRepository.delete(existing.get());
+            return false;
+        } else {
+            Runner follower = runnerRepository.findById(followerId)
+                    .orElseThrow(() -> new RuntimeException("Follower not found"));
+            Runner followed = runnerRepository.findById(followedId)
+                    .orElseThrow(() -> new RuntimeException("Followed not found"));
+
+            Follow follow = new Follow();
+            follow.setFollower(follower);
+            follow.setFollowed(followed);
+            follow.setFollowedAt(LocalDateTime.now());
+
+            followRepository.save(follow);
+            return true;
+        }
     }
 
 }

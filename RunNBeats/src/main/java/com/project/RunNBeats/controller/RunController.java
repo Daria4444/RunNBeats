@@ -53,10 +53,10 @@ public class RunController {
         return "Run deleted";
     }
 
-    @GetMapping("/api/runs/{id}/map")
+    /*@GetMapping("/api/runs/{id}/map")
     public ResponseEntity<byte[]> getRunMapImage(@PathVariable int id) {
         return runServiceImpl.getRunMapImage(id);
-    }
+    }*/
 
     @GetMapping("/runner/{runnerId}")
     public Page<RunDto> getRunsByRunner(@PathVariable int runnerId,

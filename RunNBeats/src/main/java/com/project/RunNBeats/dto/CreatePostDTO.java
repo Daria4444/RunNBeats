@@ -3,8 +3,11 @@ package com.project.RunNBeats.dto;
 public class CreatePostDTO {
     private int runnerId;
     private String description;
-    private String imageBase64; // poate fi null
+    private String imageUrl; // poate fi null
     private Integer runId;         // poate fi null
+
+    public CreatePostDTO() {
+    }
 
     public int getRunnerId() {
         return runnerId;
@@ -22,12 +25,12 @@ public class CreatePostDTO {
         this.description = description;
     }
 
-    public String getImageBase64() {
-        return imageBase64;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setImageBase64(String imageBase64) {
-        this.imageBase64 = imageBase64;
+    public void setImageUrl(String imageBase64) {
+        this.imageUrl = imageBase64;
     }
 
     public Integer getRunId() {

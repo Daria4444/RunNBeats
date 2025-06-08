@@ -3,24 +3,28 @@ package com.project.RunNBeats.controller;
 import com.project.RunNBeats.dto.CreatePostDTO;
 import com.project.RunNBeats.model.Post;
 import com.project.RunNBeats.service.PostService;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/api/v1/posts")
 public class PostController {
 
-    private final PostService postService;
+    private PostService postService;
 
+    @Autowired
     public PostController(PostService postService) {
         this.postService = postService;
     }
 
     @PostMapping("/create")
     public ResponseEntity<Post> createPost(@RequestBody CreatePostDTO dto) {
+        System.out.print(dto.getImageUrl());
         Post post = postService.createPost(dto);
         return ResponseEntity.ok(post);
     }

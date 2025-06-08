@@ -4,8 +4,6 @@ import com.project.RunNBeats.dto.FeedbackRequest;
 import com.project.RunNBeats.dto.RunnerRequest;
 import com.project.RunNBeats.errors.ResourceNotFoundException;
 import com.project.RunNBeats.model.Feedback;
-import com.project.RunNBeats.model.Playlist;
-import com.project.RunNBeats.model.Run;
 import com.project.RunNBeats.model.Runner;
 import com.project.RunNBeats.repository.FeedbackRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,4 +104,9 @@ public class RunnerServiceImpl {
     public Optional<Runner> findByUsernameAndPassword(String username, String password) {
         return runnerRepository.findByUsernameAndPassword(username, password);
     }
+
+    public List<Runner> searchByUsername(String query) {
+        return runnerRepository.findByUsernameContainingIgnoreCase(query);
+    }
+
 }

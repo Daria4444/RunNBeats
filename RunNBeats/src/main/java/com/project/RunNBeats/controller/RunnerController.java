@@ -3,7 +3,6 @@ package com.project.RunNBeats.controller;
 import com.project.RunNBeats.dto.FeedbackRequest;
 import com.project.RunNBeats.dto.Login;
 import com.project.RunNBeats.dto.RunnerRequest;
-import com.project.RunNBeats.model.Run;
 import com.project.RunNBeats.model.Runner;
 import com.project.RunNBeats.service.EmailService;
 import com.project.RunNBeats.service.RunnerServiceImpl;
@@ -17,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -107,5 +105,12 @@ public class RunnerController {
         runnerServiceImp.addFeedback(feedback);
         return ResponseEntity.ok("Feedback saved successfully");
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Runner>> searchRunners(@RequestParam String q) {
+        List<Runner> results = runnerServiceImp.searchByUsername(q);
+        return ResponseEntity.ok(results);
+    }
+
 }
 

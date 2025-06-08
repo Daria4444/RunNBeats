@@ -2,7 +2,7 @@ package com.project.RunNBeats.dto;
 import java.util.List;
 
 public class RunDto {
-
+    private int runId;
     private int runnerId;
     private double distance;               // în metri
     private int duration;                  // în secunde
@@ -13,7 +13,13 @@ public class RunDto {
     private String mapImage;               // imaginea hărții în base64
     private String mapImageUrl;             // asta e pentru cand intorc alergarile
 
-    // Getters & Setters
+    public int getRunId() {
+        return runId;
+    }
+
+    public void setRunId(int runId) {
+        this.runId = runId;
+    }
 
     public int getRunnerId() {
         return runnerId;
@@ -46,9 +52,6 @@ public class RunDto {
     public String getTimestamp() { return timestamp; }
     public void setTimestamp(String timestamp) { this.timestamp = timestamp; }
 
-    public String getMapImage() { return mapImage; }
-    public void setMapImage(String mapImage) { this.mapImage = mapImage; }
-
     public String getMapImageUrl() {
         return mapImageUrl;
     }
@@ -56,5 +59,19 @@ public class RunDto {
     public void setMapImageUrl(String mapImageUrl) {
         this.mapImageUrl = mapImageUrl;
     }
+
+    @Override
+    public String toString() {
+        return "RunDto{" +
+                "id=" + runId +
+                ", distance=" + distance +
+                ", duration=" + duration +
+                ", averageSpeed=" + averageSpeed +
+                ", pace='" + pace + '\'' +
+                ", timestamp=" + timestamp +
+                ", mapImageUrl='" + mapImageUrl + '\'' +
+                '}';
+    }
+
 }
 

@@ -12,6 +12,7 @@ import com.project.RunNBeats.repository.RunnerRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -33,6 +34,7 @@ public class PostService {
     }
 
     public Post createPost(CreatePostDTO dto) {
+        System.out.println("AICI " + dto.getRunnerId());
         Runner author = runnerRepository.findById(dto.getRunnerId())
                 .orElseThrow(() -> new RuntimeException("Runner not found"));
 
@@ -42,8 +44,8 @@ public class PostService {
         post.setCreatedAt(LocalDateTime.now());
 
         // Imagine (poți înlocui cu salvare pe disc și generare URL)
-        if (dto.getImageBase64() != null && !dto.getImageBase64().isEmpty()) {
-            post.setImageUrl(dto.getImageBase64());
+        if (dto.getImageUrl() != null && !dto.getImageUrl().isEmpty()) {
+            post.setImageUrl(dto.getImageUrl()); // salvăm URL, nu base64
         }
 
         // Alergare atașată (opțional)
@@ -53,6 +55,8 @@ public class PostService {
             post.setRun(run);
         }
 
+        System.out.println("ALERGAREA POSTULUI " + post.getRun().toString());
+
         return postRepository.save(post);
     }
 
@@ -61,9 +65,11 @@ public class PostService {
                 .orElseThrow(() -> new RuntimeException("Runner not found"));
 
         List<Follow> follows = followRepository.findByFollower(runner);
-        List<Runner> followed = follows.stream()
+        List<Runner> followed = new ArrayList<>(follows.stream()
                 .map(Follow::getFollowed)
-                .toList();
+                .toList());
+
+        followed.add(runner); // ca sa apara si propriile postari
 
         return postRepository.findByAuthorInOrderByCreatedAtDesc(followed);
     }

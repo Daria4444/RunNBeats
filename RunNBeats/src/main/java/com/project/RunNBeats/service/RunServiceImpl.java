@@ -8,7 +8,6 @@ import com.project.RunNBeats.errors.ResourceNotFoundException;
 import com.project.RunNBeats.model.Achievement;
 import com.project.RunNBeats.model.Run;
 import com.project.RunNBeats.model.Runner;
-import com.project.RunNBeats.repository.AchievementRepository;
 import com.project.RunNBeats.repository.RunRepository;
 import com.project.RunNBeats.repository.RunnerRepository;
 import org.springframework.data.domain.Page;
@@ -45,12 +44,25 @@ public class RunServiceImpl {
 
     }
 
-    public Page<RunDto> findByRunner_RunnerId(int runnerId, Pageable pageable) {
+    /*public Page<RunDto> findByRunner_RunnerId(int runnerId, Pageable pageable) {
         Page<Run> runs = runRepository.findByRunner_RunnerId(runnerId, pageable);
         return runs.map(this::convertToDto);
+    }*/
+
+    public Page<RunDto> findByRunner_RunnerId(int runnerId, Pageable pageable) {
+        Page<Run> runs = runRepository.findByRunner_RunnerId(runnerId, pageable);
+
+        Page<RunDto> runDtos = runs.map(run -> {
+            RunDto dto = convertToDto(run);
+            System.out.println("Sending run DTO: " + dto);
+            return dto;
+        });
+
+        return runDtos;
     }
 
-    public ResponseEntity<byte[]> getRunMapImage(int id) {
+
+    /*public ResponseEntity<byte[]> getRunMapImage(int id) {
             Run run = runRepository.findById(id)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
@@ -62,17 +74,18 @@ public class RunServiceImpl {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.IMAGE_PNG);
             return new ResponseEntity<>(imageData, headers, HttpStatus.OK);
-    }
+    }*/
 
     private RunDto convertToDto(Run run) {
         RunDto dto = new RunDto();
+        dto.setRunId(run.getRunId());
         dto.setRunnerId(run.getRunner().getRunnerId());
         dto.setDistance(run.getDistance());
         dto.setDuration(run.getDuration().intValue());
         dto.setAverageSpeed(run.getAverageSpeed());
         dto.setPace(run.getPace());
         dto.setTimestamp(run.getTimestamp().toString());
-        dto.setMapImageUrl("/api/runs/" + run.getRunId() + "/map");
+        dto.setMapImageUrl(run.getMapImageUrl());
 
         // deserializează traseul JSON înapoi în List<List<Double>> dacă vrei
 //        try {
@@ -100,14 +113,8 @@ public class RunServiceImpl {
             throw new RuntimeException("Eroare la serializarea traseului", e);
         }
 
-        if (runDto.getMapImage() != null && runDto.getMapImage().startsWith("data:image")) {
-            try {
-                String base64Image = runDto.getMapImage().split(",")[1];
-                byte[] imageBytes = Base64.getDecoder().decode(base64Image);
-                run.setMapImage(imageBytes);
-            } catch (IllegalArgumentException e) {
-                throw new RuntimeException("Eroare la decodarea imaginii base64", e);
-            }
+        if (runDto.getMapImageUrl() != null && !runDto.getMapImageUrl().isEmpty()) {
+            run.setMapImageUrl(runDto.getMapImageUrl());
         }
 
         run.setTimestamp(Instant.parse(runDto.getTimestamp()));

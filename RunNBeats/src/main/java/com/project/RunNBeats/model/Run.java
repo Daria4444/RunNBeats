@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.Instant;
+import java.util.Arrays;
 
 @Entity
 public class Run {
@@ -22,9 +23,7 @@ public class Run {
     private double pace;              // ex: "5:12 /km"
     private Instant timestamp;        // momentul alergării
     private String path;              // JSON serializat cu coordonatele GPS
-    @Lob
-    private byte[] mapImage;
-    // nume fișier PNG salvat pe server
+    private String mapImageUrl;
 
     public Run() {
     }
@@ -93,11 +92,26 @@ public class Run {
         this.path = path;
     }
 
-    public byte[] getMapImage() {
-        return mapImage;
+    public String getMapImageUrl() {
+        return mapImageUrl;
     }
 
-    public void setMapImage(byte[] mapImagePath) {
-        this.mapImage = mapImagePath;
+    public void setMapImageUrl(String mapImageUrl) {
+        this.mapImageUrl = mapImageUrl;
+    }
+
+    @Override
+    public String toString() {
+        return "Run{" +
+                "runId=" + runId +
+                ", runner=" + runner +
+                ", distance=" + distance +
+                ", duration=" + duration +
+                ", averageSpeed=" + averageSpeed +
+                ", pace=" + pace +
+                ", timestamp=" + timestamp +
+                ", path='" + path + '\'' +
+                ", mapImage=" + mapImageUrl +
+                '}';
     }
 }
