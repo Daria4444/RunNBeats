@@ -55,7 +55,9 @@ public class PostService {
             post.setRun(run);
         }
 
-        System.out.println("ALERGAREA POSTULUI " + post.getRun().toString());
+        if (post.getRun() != null) {
+            System.out.println("ALERGAREA POSTULUI " + post.getRun().toString());
+        }
 
         return postRepository.save(post);
     }

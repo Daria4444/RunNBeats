@@ -113,5 +113,9 @@ public class AchievementService {
         runner.setTotalDistance(updatedDistance);
         runnerRepository.save(runner);
     }
+
+    public List<RunnerAchievement> getAchievementsByRunnerId(int runnerId) {
+        return userAchievementRepository.findByRunner_RunnerId(runnerId);
+    }
 }
 

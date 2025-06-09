@@ -10,4 +10,5 @@ import java.util.List;
 public interface RunnerAchievementRepository extends JpaRepository<RunnerAchievement, Long> {
     boolean existsByRunnerAndAchievement(Runner runner, Achievement achievement);
     List<RunnerAchievement> findByRunner(Runner runner);
+    List<RunnerAchievement> findByRunner_RunnerId(int runnerId);
 }

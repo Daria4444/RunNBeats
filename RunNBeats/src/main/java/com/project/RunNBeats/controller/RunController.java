@@ -2,7 +2,9 @@ package com.project.RunNBeats.controller;
 
 import com.project.RunNBeats.dto.RunAchievementDto;
 import com.project.RunNBeats.dto.RunDto;
+import com.project.RunNBeats.model.Achievement;
 import com.project.RunNBeats.model.Run;
+import com.project.RunNBeats.service.AchievementService;
 import com.project.RunNBeats.service.RunServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,10 +21,12 @@ import java.util.List;
 @CrossOrigin
 public class RunController {
     private RunServiceImpl runServiceImpl;
+    AchievementService achievementService;
 
     @Autowired
-    public RunController(RunServiceImpl runServiceImpl) {
+    public RunController(RunServiceImpl runServiceImpl, AchievementService achievementService) {
         this.runServiceImpl = runServiceImpl;
+        this.achievementService = achievementService;
     }
 
     @GetMapping(path = "/get")
@@ -52,11 +56,6 @@ public class RunController {
         runServiceImpl.deleteRun(runId);
         return "Run deleted";
     }
-
-    /*@GetMapping("/api/runs/{id}/map")
-    public ResponseEntity<byte[]> getRunMapImage(@PathVariable int id) {
-        return runServiceImpl.getRunMapImage(id);
-    }*/
 
     @GetMapping("/runner/{runnerId}")
     public Page<RunDto> getRunsByRunner(@PathVariable int runnerId,

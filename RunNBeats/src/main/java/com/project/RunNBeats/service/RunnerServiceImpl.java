@@ -7,6 +7,7 @@ import com.project.RunNBeats.model.Feedback;
 import com.project.RunNBeats.model.Runner;
 import com.project.RunNBeats.repository.FeedbackRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.project.RunNBeats.repository.RunnerRepository;
 
@@ -19,10 +20,12 @@ import java.util.Optional;
 public class RunnerServiceImpl {
     private final RunnerRepository runnerRepository;
     private final FeedbackRepository feedbackRepository;
+    private PasswordEncoder passwordEncoder;
     @Autowired
-    public RunnerServiceImpl(RunnerRepository runnerRepository, FeedbackRepository feedbackRepository) {
+    public RunnerServiceImpl(RunnerRepository runnerRepository, FeedbackRepository feedbackRepository, PasswordEncoder passwordEncoder) {
         this.runnerRepository = runnerRepository;
         this.feedbackRepository = feedbackRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<Runner> getRunners() {
@@ -52,7 +55,7 @@ public class RunnerServiceImpl {
         runner.setUsername(runnerRequest.getUsername());
         runner.setPhoneNumber(runnerRequest.getPhoneNumber());
         runner.setEmail(runnerRequest.getEmail());
-        runner.setPassword(runnerRequest.getPassword());
+        runner.setPassword(passwordEncoder.encode(runnerRequest.getPassword()));
         runner.setSignInDate(LocalDate.now());
         runner.setTotalDistance(0.0);
         runner.setRole("ADMIN");

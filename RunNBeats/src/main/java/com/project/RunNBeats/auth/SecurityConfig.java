@@ -7,6 +7,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -32,29 +33,32 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance();
+        return new BCryptPasswordEncoder();
     }
 
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//        http
-//                .csrf(csrf -> csrf.disable())
-//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//                .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers(new AntPathRequestMatcher("/auth/**"), new AntPathRequestMatcher("/v3/api-docs/**"),
-//                                new AntPathRequestMatcher("/swagger-ui/**"),
-//                                new AntPathRequestMatcher("/swagger-ui.html")).permitAll() // permite login fără token
-//                        .anyRequest().authenticated()
-//                )
-//                .formLogin(form -> form.disable())
-//                .httpBasic(httpBasic -> httpBasic.disable())
-//                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-//
-//
-//        return http.build();
-//    }
 
     @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(new AntPathRequestMatcher("/auth/**"), new AntPathRequestMatcher("/api/v1/runner/add"),
+                                new AntPathRequestMatcher("/api/v1/run/achievements/**"),
+                                new AntPathRequestMatcher("/v3/api-docs/**"),
+                                new AntPathRequestMatcher("/swagger-ui/**"),
+                                new AntPathRequestMatcher("/swagger-ui.html")).permitAll() // permite login fără token
+                        .anyRequest().authenticated()
+                )
+                .formLogin(form -> form.disable())
+                .httpBasic(httpBasic -> httpBasic.disable())
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+
+        return http.build();
+    }
+
+    /*@Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable()) // dezactivează CSRF (pentru API)
@@ -63,6 +67,6 @@ public class SecurityConfig {
                 );
 
         return http.build();
-    }
+    }*/
 }
 

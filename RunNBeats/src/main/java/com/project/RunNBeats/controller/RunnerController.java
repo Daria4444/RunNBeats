@@ -3,7 +3,9 @@ package com.project.RunNBeats.controller;
 import com.project.RunNBeats.dto.FeedbackRequest;
 import com.project.RunNBeats.dto.Login;
 import com.project.RunNBeats.dto.RunnerRequest;
+import com.project.RunNBeats.model.Achievement;
 import com.project.RunNBeats.model.Runner;
+import com.project.RunNBeats.service.AchievementService;
 import com.project.RunNBeats.service.EmailService;
 import com.project.RunNBeats.service.RunnerServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,18 +21,20 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+@CrossOrigin
 @RestController
 @RequestMapping(path = "api/v1/runner")
-@CrossOrigin
 public class RunnerController {
     @Autowired
     private EmailService emailService;
 
-    RunnerServiceImpl runnerServiceImp;
+    private RunnerServiceImpl runnerServiceImp;
+    private AchievementService achievementService;
 
     @Autowired
-    public RunnerController(RunnerServiceImpl runnerServiceImp) {
+    public RunnerController(RunnerServiceImpl runnerServiceImp, AchievementService achievementService) {
         this.runnerServiceImp = runnerServiceImp;
+        this.achievementService = achievementService;
     }
 
     @Operation(summary = "Obține toți runnerii")
