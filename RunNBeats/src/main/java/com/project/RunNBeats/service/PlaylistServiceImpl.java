@@ -1,6 +1,7 @@
 package com.project.RunNBeats.service;
 
 import com.project.RunNBeats.dto.PlaylistRequest;
+import com.project.RunNBeats.enums.PlaylistType;
 import com.project.RunNBeats.errors.ResourceNotFoundException;
 import com.project.RunNBeats.model.Playlist;
 import com.project.RunNBeats.model.Runner;
@@ -64,5 +65,21 @@ public class PlaylistServiceImpl {
             throw new ResourceNotFoundException("Playlist cu ID-ul " + playlistId + " nu există.");
         }
     }
+    public Playlist updatePlaylistType(int playlistId, String type) {
+        Playlist playlist = playlistRepository.findById(playlistId)
+                .orElseThrow(() -> new IllegalArgumentException("Playlist not found"));
+        try {
+            PlaylistType newType = PlaylistType.valueOf(type.toUpperCase());
+            playlist.setPlaylistType(newType);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid playlist type: " + type);
+        }
+        return playlistRepository.save(playlist);
+    }
+
+    public List<Playlist> getPlaylistsByRunnerAndType(int runnerId, PlaylistType type) {
+        return playlistRepository.findByRunner_RunnerIdAndPlaylistType(runnerId, type);
+    }
+
 
 }

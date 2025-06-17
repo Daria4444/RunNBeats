@@ -1,5 +1,3 @@
-// The entire previous implementation has been modified to remove Grid and manually align two cards per row using Flexbox.
-
 import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
@@ -12,7 +10,13 @@ import {
   DialogTitle,
   useTheme,
   Card,
-  CardContent
+  CardContent,
+  CircularProgress,
+  Grid,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel
 } from "@mui/material";
 import html2canvas from "html2canvas";
 import L from "leaflet";
@@ -33,32 +37,37 @@ const Run = () => {
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [unlockedAchievements, setUnlockedAchievements] = useState([]);
   const [achievementDialogOpen, setAchievementDialogOpen] = useState(false);
-  const runnerId = localStorage.getItem('runnerId');
+  const [playlists, setPlaylists] = useState([]);
+  const [assistDialogOpen, setAssistDialogOpen] = useState(false);
+  const [selectedType, setSelectedType] = useState("");
+  const iframeRefs = useRef({});
+  const runnerId = localStorage.getItem("runnerId");
   const CLOUDINARY_UPLOAD_URL = "https://api.cloudinary.com/v1_1/dw9vaqeyh/image/upload";
   const CLOUDINARY_UPLOAD_PRESET = "runnbeats_unsigned";
 
-  const deg2rad = deg => deg * (Math.PI / 180);
+  const deg2rad = (deg) => deg * (Math.PI / 180);
 
   const getDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371000;
     const dLat = deg2rad(lat2 - lat1);
     const dLon = deg2rad(lon2 - lon1);
-    const a = Math.sin(dLat / 2) ** 2 + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon / 2) ** 2;
+    const a = Math.sin(dLat / 2) ** 2 +
+      Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon / 2) ** 2;
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   };
 
   const formatTime = (seconds) => {
-    const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
-    const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
-    const s = String(seconds % 60).padStart(2, '0');
+    const h = String(Math.floor(seconds / 3600)).padStart(2, "0");
+    const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
+    const s = String(seconds % 60).padStart(2, "0");
     return `${h}:${m}:${s}`;
   };
 
   const formatPace = (secondsPerKm) => {
     if (!isFinite(secondsPerKm)) return "--:--";
     const min = Math.floor(secondsPerKm / 60);
-    const sec = String(Math.floor(secondsPerKm % 60)).padStart(2, '0');
+    const sec = String(Math.floor(secondsPerKm % 60)).padStart(2, "0");
     return `${min}:${sec} /km`;
   };
 
@@ -70,7 +79,7 @@ const Run = () => {
     startMarkerRef.current = null;
 
     const id = navigator.geolocation.watchPosition(
-      position => {
+      (position) => {
         const { latitude: lat, longitude: lon, accuracy } = position.coords;
         if (accuracy > 30) return;
         const newPoint = [lat, lon];
@@ -80,11 +89,11 @@ const Run = () => {
             .bindPopup("Start")
             .openPopup();
         }
-        setPath(prev => {
+        setPath((prev) => {
           if (prev.length > 0) {
             const last = prev[prev.length - 1];
             const dist = getDistance(last[0], last[1], lat, lon);
-            if (dist < 100) setTotalDistance(prevDist => prevDist + dist);
+            if (dist < 100) setTotalDistance((prevDist) => prevDist + dist);
             else return prev;
           }
           const updatedPath = [...prev, newPoint];
@@ -95,7 +104,7 @@ const Run = () => {
           return updatedPath;
         });
       },
-      err => alert("GPS Error: " + err.message),
+      (err) => alert("GPS Error: " + err.message),
       { enableHighAccuracy: true, maximumAge: 1000 }
     );
     setWatchId(id);
@@ -108,6 +117,11 @@ const Run = () => {
     if (watchId) navigator.geolocation.clearWatch(watchId);
     clearInterval(intervalRef.current);
     setSaveDialogOpen(true);
+    Object.values(iframeRefs.current).forEach((iframe) => {
+      if (iframe && iframe.contentWindow) {
+        iframe.contentWindow.postMessage('"stopVideo"', '*');
+      }
+    });
   };
 
   const handleSaveRun = async () => {
@@ -120,14 +134,14 @@ const Run = () => {
       path,
       timestamp: new Date().toISOString(),
       runnerId,
-      mapImageUrl: null
+      mapImageUrl: null,
     };
 
     try {
       const mapElement = document.getElementById("map");
       if (mapElement) {
         const canvas = await html2canvas(mapElement);
-        const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+        const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
         const formData = new FormData();
         formData.append("file", blob);
         formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
@@ -138,7 +152,7 @@ const Run = () => {
 
       await fetch(`${process.env.REACT_APP_API_URL}/api/v1/run/add`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem('token')}` },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` },
         body: JSON.stringify(runData),
       });
     } catch (err) {
@@ -148,28 +162,60 @@ const Run = () => {
     setSaveDialogOpen(false);
   };
 
+  const handleAssistedRunStart = async () => {
+    if (!selectedType) return;
+
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/v1/playlist/get/${runnerId}/playlists/by-type?type=${selectedType}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      const data = await res.json();
+      console.log(data);
+      setPlaylists(data);
+      setAssistDialogOpen(false);
+    } catch (err) {
+      console.error("Error loading assisted playlists:", err);
+    }
+  };
+
   useEffect(() => {
     if (!mapRef.current || mapInstance.current) return;
     mapInstance.current = L.map(mapRef.current).setView([45.9432, 24.9668], 6);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '&copy; OpenStreetMap contributors'
+      attribution: "&copy; OpenStreetMap contributors",
     }).addTo(mapInstance.current);
     polylineRef.current = L.polyline([], { color: "red" }).addTo(mapInstance.current);
     setTimeout(() => mapInstance.current.invalidateSize(), 0);
+
+    fetch(`${process.env.REACT_APP_API_URL}/api/v1/playlist/get/${runnerId}/playlists`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    })
+      .then((res) => res.json())
+      .then((data) => setPlaylists(data))
+      .catch((err) => console.error("Failed to load playlists:", err));
   }, []);
 
+  const extractYouTubePlaylistId = (url) => {
+    const regex = /[?&]list=([a-zA-Z0-9_-]+)/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+  };
+
   return (
-    <Box p={3} sx={{ backgroundColor: '#f4f6fa', borderRadius: 4, boxShadow: 4 }}>
-      <Typography variant="h6" gutterBottom fontWeight="bold" sx={{ color: 'rgba(93, 99, 209, 0.9)' }}>
+    <Box p={3} sx={{ backgroundColor: "#f4f6fa", borderRadius: 4, boxShadow: 4, pb: 8 }}>
+      <Typography variant="h6" gutterBottom fontWeight="bold" sx={{ color: "rgba(93, 99, 209, 0.9)" }}>
         Your Running Journey
       </Typography>
 
-      <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
-        <Button variant="contained" onClick={startTracking} sx={{ backgroundColor: 'rgba(93, 99, 209, 0.7)', '&:hover': { backgroundColor: 'rgba(93, 99, 209, 0.9)' } }}>Start</Button>
-        <Button variant="contained" onClick={stopTracking} sx={{ backgroundColor: 'rgba(93, 99, 209, 0.7)', '&:hover': { backgroundColor: 'rgba(93, 99, 209, 0.9)' } }}>Stop</Button>
+      <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
+        <Button variant="contained" onClick={startTracking} sx={{ backgroundColor: "rgba(93, 99, 209, 0.7)", '&:hover': { backgroundColor: 'rgba(93, 99, 209, 0.9)' } }}>Start</Button>
+        <Button variant="contained" onClick={stopTracking} sx={{ backgroundColor: "rgba(93, 99, 209, 0.7)", '&:hover': { backgroundColor: 'rgba(93, 99, 209, 0.9)' } }}>Stop</Button>
+        <Button variant="contained" onClick={() => setAssistDialogOpen(true)} sx={{ backgroundColor: "rgba(93, 99, 209, 0.7)", '&:hover': { backgroundColor: 'rgba(93, 99, 209, 0.9)' } }}>Assisted Run</Button>
       </Box>
 
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 4 }}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 4 }}>
         {[{
           label: "Distance", value: `${totalDistance.toFixed(2)} m`
         }, {
@@ -179,7 +225,7 @@ const Run = () => {
         }, {
           label: "Avg Pace", value: formatPace((elapsed && totalDistance > 0) ? (elapsed / (totalDistance / 1000)) : 0)
         }].map((stat, idx) => (
-          <Box key={idx} sx={{ flex: '1 1 calc(50% - 8px)' }}>
+          <Box key={idx} sx={{ flex: "1 1 calc(50% - 8px)" }}>
             <Card>
               <CardContent>
                 <Typography variant="subtitle2">{stat.label}</Typography>
@@ -192,6 +238,35 @@ const Run = () => {
 
       <Box id="map" sx={{ height: "400px", borderRadius: 2, overflow: "hidden", boxShadow: 3 }} ref={mapRef}></Box>
 
+      <Box mt={5}>
+        <Typography variant="h6" gutterBottom fontWeight="bold" sx={{ color: "rgba(93, 99, 209, 0.9)" }}>
+          Your Playlists
+        </Typography>
+        <Grid container spacing={2}>
+          {playlists.map((playlist) => {
+            const pid = extractYouTubePlaylistId(playlist.link);
+            return pid ? (
+              <Grid item xs={12} sm={6} md={4} key={playlist.playlistId}>
+                <Card elevation={2}>
+                  <CardContent sx={{ p: 0 }}>
+                    <iframe
+                      ref={(el) => iframeRefs.current[playlist.playlistId] = el}
+                      width="100%"
+                      height="315"
+                      src={`https://www.youtube.com/embed/videoseries?list=${pid}`}
+                      frameBorder="0"
+                      allow="autoplay; encrypted-media"
+                      allowFullScreen
+                      title={`Playlist ${playlist.playlistId}`}
+                    ></iframe>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ) : null;
+          })}
+        </Grid>
+      </Box>
+
       <Dialog open={saveDialogOpen} onClose={() => setSaveDialogOpen(false)}>
         <DialogTitle sx={{ fontWeight: "bold", textAlign: "center" }}>Save this run?</DialogTitle>
         <DialogContent>
@@ -202,6 +277,36 @@ const Run = () => {
         <DialogActions sx={{ justifyContent: "center", pb: 2 }}>
           <Button onClick={() => setSaveDialogOpen(false)} color="error" variant="outlined">No</Button>
           <Button onClick={handleSaveRun} sx={{ backgroundColor: 'rgba(93, 99, 209, 0.7)', color: 'white', '&:hover': { backgroundColor: 'rgba(93, 99, 209, 0.9)' } }}>Yes</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={assistDialogOpen} onClose={() => setAssistDialogOpen(false)}>
+        <DialogTitle sx={{ fontWeight: "bold" }}>What type of running do you need assistance for?</DialogTitle>
+        <DialogContent sx={{ minWidth: 300 }}>
+          <FormControl fullWidth sx={{ mt: 2 }}>
+            <InputLabel>Playlist Type</InputLabel>
+            <Select
+              value={selectedType}
+              label="Playlist Type"
+              onChange={(e) => setSelectedType(e.target.value)}
+            >
+              <MenuItem value="BOOST">BOOST</MenuItem>
+              <MenuItem value="CHILL">CHILL</MenuItem>
+              <MenuItem value="VIBE">VIBE</MenuItem>
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: "center", pb: 2 }}>
+          <Button onClick={() => setAssistDialogOpen(false)} color="error" variant="outlined">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleAssistedRunStart}
+            disabled={!selectedType}
+            sx={{ backgroundColor: "rgba(93, 99, 209, 0.7)", color: "white", '&:hover': { backgroundColor: "rgba(93, 99, 209, 0.9)" } }}
+          >
+            Start
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

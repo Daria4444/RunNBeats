@@ -1,6 +1,7 @@
 package com.project.RunNBeats.controller;
 
 import com.project.RunNBeats.dto.PlaylistRequest;
+import com.project.RunNBeats.enums.PlaylistType;
 import com.project.RunNBeats.model.Playlist;
 import com.project.RunNBeats.service.PlaylistServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,4 +54,18 @@ public class PlaylistController {
         playlistServiceImpl.deletePlaylist(playlistId);
         return "Playlist deleted";
     }
+
+    @PutMapping("/update-type/{playlistId}")
+    public Playlist updatePlaylistType(@PathVariable int playlistId, @RequestParam String type) {
+        return playlistServiceImpl.updatePlaylistType(playlistId, type);
+    }
+
+    @GetMapping("/get/{runnerId}/playlists/by-type")
+    public List<Playlist> getPlaylistsByType(
+            @PathVariable int runnerId,
+            @RequestParam PlaylistType type
+    ) {
+        return playlistServiceImpl.getPlaylistsByRunnerAndType(runnerId, type);
+    }
+
 }

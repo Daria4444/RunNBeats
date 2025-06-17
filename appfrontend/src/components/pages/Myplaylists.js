@@ -9,6 +9,10 @@ import {
   CardContent,
   CircularProgress,
   Stack,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
 } from '@mui/material';
 import LibraryMusicIcon from '@mui/icons-material/LibraryMusic';
 
@@ -27,8 +31,9 @@ const MyPlaylists = () => {
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API_URL}/api/v1/playlist/get/${runnerId}/playlists`, {
       headers: {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`
-    }})
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    })
       .then((res) => res.json())
       .then((data) => setPlaylists(data))
       .catch((err) => console.error('Eroare la încărcarea playlisturilor:', err));
@@ -43,7 +48,7 @@ const MyPlaylists = () => {
     }
 
     const payload = {
-      runnerId: runnerId,
+      runnerId,
       link: youtubeLink,
       playlistType: 'BOOST',
     };
@@ -52,7 +57,10 @@ const MyPlaylists = () => {
       setLoading(true);
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/v1/playlist/add`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' , 'Authorization': `Bearer ${localStorage.getItem('token')}`},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
         body: JSON.stringify(payload),
       });
 
@@ -67,6 +75,29 @@ const MyPlaylists = () => {
       console.error("Eroare la trimiterea către backend:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleTypeChange = async (playlistId, newType) => {
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/v1/playlist/update-type/${playlistId}?type=${newType}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (res.ok) {
+        setPlaylists((prev) =>
+          prev.map((p) =>
+            p.playlistId === playlistId ? { ...p, playlistType: newType } : p
+          )
+        );
+      } else {
+        alert('Eroare la actualizarea tipului de playlist');
+      }
+    } catch (err) {
+      console.error('Eroare la actualizarea playlistului:', err);
     }
   };
 
@@ -144,7 +175,7 @@ const MyPlaylists = () => {
                     <CardContent sx={{ p: 0 }}>
                       <iframe
                         width="100%"
-                        height="380"
+                        height="250"
                         src={`https://www.youtube.com/embed/videoseries?list=${pid}`}
                         frameBorder="0"
                         allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
@@ -152,6 +183,20 @@ const MyPlaylists = () => {
                         title={`Playlist ${playlist.playlistId}`}
                       ></iframe>
                     </CardContent>
+                    <Box p={2}>
+                      <FormControl fullWidth size="small">
+                        <InputLabel>Playlist Type</InputLabel>
+                        <Select
+                          value={playlist.playlistType || ''}
+                          label="Playlist Type"
+                          onChange={(e) => handleTypeChange(playlist.playlistId, e.target.value)}
+                        >
+                          <MenuItem value="BOOST">BOOST</MenuItem>
+                          <MenuItem value="CHILL">CHILL</MenuItem>
+                          <MenuItem value="VIBE">VIBE</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Box>
                   </Card>
                 </Grid>
               )
