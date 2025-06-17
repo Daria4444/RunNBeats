@@ -20,7 +20,7 @@ public class Run {
     private Double distance;          // în metri
     private Integer duration;         // în secunde
     private Double averageSpeed;      // în m/s
-    private double pace;              // ex: "5:12 /km"
+    private double pace;              // ex: "5:12 min/km"
     private Instant timestamp;        // momentul alergării
     private String path;              // JSON serializat cu coordonatele GPS
     private String mapImageUrl;

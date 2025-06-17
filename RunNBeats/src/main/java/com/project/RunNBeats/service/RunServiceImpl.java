@@ -125,6 +125,8 @@ public class RunServiceImpl {
         run.setRunner(runner);
         runRepository.save(run);
 
+        runner.setTotalRuns(runner.getTotalRuns() + 1);
+
         List<Achievement> newlyUnlocked = achievementService.evaluateAchievements(runner, run);
         RunAchievementDto runAchievementDto = new RunAchievementDto();
         runAchievementDto.setRun(run);

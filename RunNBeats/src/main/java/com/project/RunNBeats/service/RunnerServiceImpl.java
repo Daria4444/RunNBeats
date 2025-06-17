@@ -61,6 +61,7 @@ public class RunnerServiceImpl {
         runner.setRole("ADMIN");
         runner.setRuns(new ArrayList<>());
         runner.setPlaylists(new ArrayList<>());
+        runner.setTotalRuns(0);
         // ADAUGA SI ALEGARILE SI PLAYLIST URILE
         return runnerRepository.save(runner);
     }

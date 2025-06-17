@@ -19,6 +19,11 @@ public class Runner {
     private LocalDate signInDate;
     private Double totalDistance;
 
+    @Column(nullable = true)
+    private double bestPace;
+
+    private Integer totalRuns;
+
     @OneToMany(mappedBy = "runner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Playlist> playlists;
 
@@ -123,5 +128,21 @@ public class Runner {
 
     public void setRuns(List<Run> runs) {
         this.runs = runs;
+    }
+
+    public double getBestPace() {
+        return bestPace;
+    }
+
+    public void setBestPace(double bestPace) {
+        this.bestPace = bestPace;
+    }
+
+    public Integer getTotalRuns() {
+        return totalRuns;
+    }
+
+    public void setTotalRuns(Integer totalRuns) {
+        this.totalRuns = totalRuns;
     }
 }
