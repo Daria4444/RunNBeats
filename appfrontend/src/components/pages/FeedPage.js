@@ -22,7 +22,11 @@ const FeedPage = () => {
   const CLOUDINARY_UPLOAD_PRESET = "runnbeats_unsigned";
 
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/api/v1/posts/feed/${runnerId}`)
+    fetch(`${process.env.REACT_APP_API_URL}/api/v1/posts/feed/${runnerId}`, { 
+      headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    }
+  })
       .then(res => res.json())
       .then(data => setPosts(data));
   }, [runnerId]);
@@ -77,7 +81,9 @@ const FeedPage = () => {
 
     fetch(`${process.env.REACT_APP_API_URL}/api/v1/posts/create`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+       },
       body: JSON.stringify(payload)
     })
       .then(res => res.json())

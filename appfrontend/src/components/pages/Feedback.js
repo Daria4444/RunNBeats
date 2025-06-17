@@ -31,7 +31,8 @@ export default function Feedback() {
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/v1/runner/feedback/add`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${localStorage.getItem('token')}`},
         body: JSON.stringify(formData),
       });
 

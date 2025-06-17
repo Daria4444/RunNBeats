@@ -9,7 +9,11 @@ export const UserProvider = ({ children }) => {
 
   useEffect(() => {
     // Simulăm fetch la mount (ex: când intri în app)
-    fetch(`${process.env.REACT_APP_API_URL}/api/v1/runner/get/${runnerId}?`)
+    fetch(`${process.env.REACT_APP_API_URL}/api/v1/runner/get/${runnerId}?`, {
+      headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    }
+    })
       .then(res => res.json())
       .then(data => {
         setUser(data);

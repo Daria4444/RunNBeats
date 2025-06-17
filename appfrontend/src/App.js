@@ -5,7 +5,6 @@ import Homepage from './components/pages/Homepage';
 import Login from './components/pages/Login';
 import Register from './components/pages/Register';
 import Profile from './components/pages/Profile';
-import Settings from './components/pages/Settings';
 import Dashboard from './components/pages/FeedPage';
 import Feedback from './components/pages/Feedback';
 import Myruns from './components/pages/Myruns';
@@ -28,7 +27,6 @@ function App() {
         {/* Pagini cu NavBar */}
         <Route element={<Layout />}>
           <Route path="/profile" element={<Profile />} />
-          <Route path="/settings" element={<Settings />} />
           <Route path="/feedPage" element={<FeedPage />} />
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/myruns" element={<Myruns />} />

@@ -1,3 +1,5 @@
+// The entire previous implementation has been modified to remove Grid and manually align two cards per row using Flexbox.
+
 import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
@@ -8,18 +10,13 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Slide,
   useTheme,
-  Snackbar,
-  Alert
+  Card,
+  CardContent
 } from "@mui/material";
 import html2canvas from "html2canvas";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-
-const Transition = React.forwardRef(function Transition(props, ref) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
 
 const Run = () => {
   const theme = useTheme();
@@ -46,12 +43,7 @@ const Run = () => {
     const R = 6371000;
     const dLat = deg2rad(lat2 - lat1);
     const dLon = deg2rad(lon2 - lon1);
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(deg2rad(lat1)) *
-        Math.cos(deg2rad(lat2)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon / 2) ** 2;
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   };
@@ -92,11 +84,8 @@ const Run = () => {
           if (prev.length > 0) {
             const last = prev[prev.length - 1];
             const dist = getDistance(last[0], last[1], lat, lon);
-            if (dist < 100) {
-              setTotalDistance(prevDist => prevDist + dist);
-            } else {
-              return prev;
-            }
+            if (dist < 100) setTotalDistance(prevDist => prevDist + dist);
+            else return prev;
           }
           const updatedPath = [...prev, newPoint];
           if (polylineRef.current) {
@@ -106,7 +95,7 @@ const Run = () => {
           return updatedPath;
         });
       },
-      err => alert("Eroare GPS: " + err.message),
+      err => alert("GPS Error: " + err.message),
       { enableHighAccuracy: true, maximumAge: 1000 }
     );
     setWatchId(id);
@@ -122,60 +111,42 @@ const Run = () => {
   };
 
   const handleSaveRun = async () => {
-  const paceSecondsPerKm = (elapsed && totalDistance > 0) ? (elapsed / (totalDistance / 1000)) : 0;
+    const paceSecondsPerKm = elapsed && totalDistance > 0 ? elapsed / (totalDistance / 1000) : 0;
+    const runData = {
+      distance: totalDistance / 1000,
+      duration: elapsed,
+      pace: paceSecondsPerKm / 60,
+      averageSpeed: totalDistance / (elapsed || 1),
+      path,
+      timestamp: new Date().toISOString(),
+      runnerId,
+      mapImageUrl: null
+    };
 
-  const runData = {
-    distance: totalDistance,
-    duration: elapsed,
-    pace: paceSecondsPerKm / 60,
-    averageSpeed: totalDistance / (elapsed || 1),
-    path: path,
-    timestamp: new Date().toISOString(),
-    runnerId: runnerId,
-    mapImageUrl: null
-  };
+    try {
+      const mapElement = document.getElementById("map");
+      if (mapElement) {
+        const canvas = await html2canvas(mapElement);
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+        const formData = new FormData();
+        formData.append("file", blob);
+        formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+        const uploadRes = await fetch(CLOUDINARY_UPLOAD_URL, { method: "POST", body: formData });
+        const uploadData = await uploadRes.json();
+        runData.mapImageUrl = uploadData.secure_url;
+      }
 
-  try {
-    const mapElement = document.getElementById("map");
-    if (mapElement) {
-      const canvas = await html2canvas(mapElement);
-      const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
-      const formData = new FormData();
-      formData.append("file", blob);
-      formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-
-      const uploadRes = await fetch(CLOUDINARY_UPLOAD_URL, {
+      await fetch(`${process.env.REACT_APP_API_URL}/api/v1/run/add`, {
         method: "POST",
-        body: formData
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem('token')}` },
+        body: JSON.stringify(runData),
       });
-
-      const uploadData = await uploadRes.json();
-      runData.mapImageUrl = uploadData.secure_url;
-      console.log("Run ul trimis la backend" + runData);
+    } catch (err) {
+      console.error("Error saving run:", err);
     }
 
-
-    const res = await fetch(`${process.env.REACT_APP_API_URL}/api/v1/run/add`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(runData),
-    });
-
-    const data = await res.json();
-    console.log("Run saved:", data);
-
-    if (data.newlyUnlockedAchievements?.length > 0) {
-      setUnlockedAchievements(data.newlyUnlockedAchievements);
-      setAchievementDialogOpen(true);
-    }
-
-  } catch (err) {
-    console.error("Error saving run:", err);
-  }
-
-  setSaveDialogOpen(false);
-};
-
+    setSaveDialogOpen(false);
+  };
 
   useEffect(() => {
     if (!mapRef.current || mapInstance.current) return;
@@ -184,72 +155,53 @@ const Run = () => {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(mapInstance.current);
     polylineRef.current = L.polyline([], { color: "red" }).addTo(mapInstance.current);
+    setTimeout(() => mapInstance.current.invalidateSize(), 0);
   }, []);
 
-  const averageSpeed = totalDistance / (elapsed || 1);
-  const paceSecondsPerKm = (elapsed && totalDistance > 0) ? (elapsed / (totalDistance / 1000)) : 0;
-
   return (
-    <Box p={2}>
-      <Typography variant="h4" gutterBottom>Traseul tău de alergare</Typography>
-      <Button variant="contained" color="primary" onClick={startTracking} sx={{ mr: 2 }}>Start</Button>
-      <Button variant="contained" color="secondary" onClick={stopTracking}>Stop</Button>
+    <Box p={3} sx={{ backgroundColor: '#f4f6fa', borderRadius: 4, boxShadow: 4 }}>
+      <Typography variant="h6" gutterBottom fontWeight="bold" sx={{ color: 'rgba(93, 99, 209, 0.9)' }}>
+        Your Running Journey
+      </Typography>
 
-      <Box mt={2}>
-        <Typography>Distanță: {totalDistance.toFixed(2)} m</Typography>
-        <Typography>Durată: {formatTime(elapsed)}</Typography>
-        <Typography>Viteză medie: {averageSpeed.toFixed(2)} m/s</Typography>
-        <Typography>Pace mediu: {formatPace(paceSecondsPerKm)}</Typography>
+      <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+        <Button variant="contained" onClick={startTracking} sx={{ backgroundColor: 'rgba(93, 99, 209, 0.7)', '&:hover': { backgroundColor: 'rgba(93, 99, 209, 0.9)' } }}>Start</Button>
+        <Button variant="contained" onClick={stopTracking} sx={{ backgroundColor: 'rgba(93, 99, 209, 0.7)', '&:hover': { backgroundColor: 'rgba(93, 99, 209, 0.9)' } }}>Stop</Button>
       </Box>
 
-      <Box mt={2} id="map" sx={{ height: "400px", borderRadius: 2, overflow: "hidden", boxShadow: 3 }} ref={mapRef}></Box>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 4 }}>
+        {[{
+          label: "Distance", value: `${totalDistance.toFixed(2)} m`
+        }, {
+          label: "Duration", value: formatTime(elapsed)
+        }, {
+          label: "Avg Speed", value: `${(totalDistance / (elapsed || 1)).toFixed(2)} m/s`
+        }, {
+          label: "Avg Pace", value: formatPace((elapsed && totalDistance > 0) ? (elapsed / (totalDistance / 1000)) : 0)
+        }].map((stat, idx) => (
+          <Box key={idx} sx={{ flex: '1 1 calc(50% - 8px)' }}>
+            <Card>
+              <CardContent>
+                <Typography variant="subtitle2">{stat.label}</Typography>
+                <Typography variant="h6">{stat.value}</Typography>
+              </CardContent>
+            </Card>
+          </Box>
+        ))}
+      </Box>
 
-      <Dialog
-        open={saveDialogOpen}
-        onClose={() => setSaveDialogOpen(false)}
-        TransitionComponent={Transition}
-        keepMounted
-        fullWidth
-        maxWidth="xs"
-        PaperProps={{
-          sx: {
-            borderRadius: 4,
-            p: 2,
-            background: theme.palette.background.paper,
-            boxShadow: theme.shadows[10],
-          }
-        }}
-      >
-        <DialogTitle sx={{ fontWeight: "bold", textAlign: "center" }}>Salvezi alergarea?</DialogTitle>
+      <Box id="map" sx={{ height: "400px", borderRadius: 2, overflow: "hidden", boxShadow: 3 }} ref={mapRef}></Box>
+
+      <Dialog open={saveDialogOpen} onClose={() => setSaveDialogOpen(false)}>
+        <DialogTitle sx={{ fontWeight: "bold", textAlign: "center" }}>Save this run?</DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ textAlign: "center", fontSize: "1.1rem" }}>
-            Vrei să salvezi această sesiune de alergare?
+            Do you want to save this running session?
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ justifyContent: "center", pb: 2 }}>
-          <Button onClick={() => setSaveDialogOpen(false)} color="error" variant="outlined">Nu</Button>
-          <Button onClick={handleSaveRun} color="primary" variant="contained">Da</Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog
-        open={achievementDialogOpen}
-        onClose={() => setAchievementDialogOpen(false)}
-        fullWidth
-        maxWidth="xs"
-      >
-        <DialogTitle sx={{ textAlign: "center", fontWeight: 'bold' }}>🎉 Felicitări!</DialogTitle>
-        <DialogContent>
-          {unlockedAchievements.map((ach, idx) => (
-            <Box key={idx} sx={{ mb: 2, textAlign: "center" }}>
-              <Typography variant="h6">🏅 {ach.name}</Typography>
-              <Typography variant="body2" color="text.secondary">{ach.description}</Typography>
-              <Typography variant="caption">Level: {ach.level} | Type: {ach.type}</Typography>
-            </Box>
-          ))}
-        </DialogContent>
-        <DialogActions sx={{ justifyContent: "center" }}>
-          <Button variant="contained" onClick={() => setAchievementDialogOpen(false)}>Ok</Button>
+          <Button onClick={() => setSaveDialogOpen(false)} color="error" variant="outlined">No</Button>
+          <Button onClick={handleSaveRun} sx={{ backgroundColor: 'rgba(93, 99, 209, 0.7)', color: 'white', '&:hover': { backgroundColor: 'rgba(93, 99, 209, 0.9)' } }}>Yes</Button>
         </DialogActions>
       </Dialog>
     </Box>

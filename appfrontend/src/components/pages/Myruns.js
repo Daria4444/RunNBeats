@@ -34,7 +34,10 @@ export default function MyRuns() {
   const fetchRuns = async (pageNumber) => {
     setLoading(true);
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/v1/run/runner/${runnerId}?page=${pageNumber - 1}&size=5`);
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/v1/run/runner/${runnerId}?page=${pageNumber - 1}&size=5`, {
+      headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    }});
       const data = await res.json();
       setRuns(data.content);
       console.log("ce ne a venit din backend",  data.content);
@@ -63,8 +66,8 @@ export default function MyRuns() {
 
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/v1/posts/create`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token') }`},
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {

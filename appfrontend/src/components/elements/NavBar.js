@@ -2,43 +2,51 @@ import React from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import { Link as RouterLink } from 'react-router-dom';
 import IconButton from '@mui/material/IconButton';
+import { Link as RouterLink } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
+import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import LogoutIcon from '@mui/icons-material/Logout';
+import HomeIcon from '@mui/icons-material/Home';
 
 const NavBar = () => {
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static" sx={{ backgroundColor: '#5D63D1' }}>
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            MyApp
-          </Typography>
+    <AppBar
+      position="fixed"
+      sx={{
+        top: 'auto',
+        bottom: 0,
+        backgroundColor: '#5D63D1',
+      }}
+    >
+      <Toolbar
+        sx={{
+          minHeight: 30,
+          display: 'flex',
+          justifyContent: 'space-around',
+          alignItems: 'center',
+          paddingY: 0.5,
+        }}
+      >
+        <IconButton color="inherit" component={RouterLink} to="/search" size="small">
+          <SearchIcon fontSize="medium" />
+        </IconButton>
 
-          <IconButton color="inherit" component={RouterLink} to="/search">
-            <SearchIcon />
-          </IconButton>
+        <IconButton color="inherit" component={RouterLink} to="/feedPage" size="small">
+          <HomeIcon fontSize="medium" />
+        </IconButton>
 
-          <Button color="inherit" component={RouterLink} to="/run">
-            Run
-          </Button>
-          <Button color="inherit" component={RouterLink} to="/feedback">
-            Feedback
-          </Button>
-          <Button color="inherit" component={RouterLink} to="/settings">
-            Settings
-          </Button>
-          <Button color="inherit" component={RouterLink} to="/profile">
-            Profile
-          </Button>
-          <Button color="inherit" component={RouterLink} to="/">
-            Logout
-          </Button>
-        </Toolbar>
-      </AppBar>
-    </Box>
+        <IconButton color="inherit" component={RouterLink} to="/run" size="small">
+          <DirectionsRunIcon fontSize="medium" />
+        </IconButton>
+
+        <IconButton color="inherit" component={RouterLink} to="/profile" size="small">
+          <AccountCircleIcon fontSize="medium" />
+        </IconButton>
+
+      </Toolbar>
+    </AppBar>
   );
 };
 

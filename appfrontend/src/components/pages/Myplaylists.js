@@ -25,7 +25,10 @@ const MyPlaylists = () => {
   };
 
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/api/v1/playlist/get/${runnerId}/playlists`)
+    fetch(`${process.env.REACT_APP_API_URL}/api/v1/playlist/get/${runnerId}/playlists`, {
+      headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    }})
       .then((res) => res.json())
       .then((data) => setPlaylists(data))
       .catch((err) => console.error('Eroare la încărcarea playlisturilor:', err));
@@ -49,7 +52,7 @@ const MyPlaylists = () => {
       setLoading(true);
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/v1/playlist/add`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' , 'Authorization': `Bearer ${localStorage.getItem('token')}`},
         body: JSON.stringify(payload),
       });
 

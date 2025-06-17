@@ -23,9 +23,10 @@ export default function Login() {
   const handleLogin = async () => {
     setLoading(true);
     setErrorMsg('');
+
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/v1/runner/login`,
+        `${process.env.REACT_APP_API_URL}/auth/login`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -37,14 +38,23 @@ export default function Login() {
       console.log('Login response:', response.status, result);
 
       if (response.ok) {
-        localStorage.setItem('runnerId', result.runnerId);
+        // ✅ Salvăm token-ul JWT
+        localStorage.setItem('token', result.jwt);
+        localStorage.setItem('username', formData.username); // opțional
+
+        // 🔁 Dacă backend-ul trimite și runnerId, păstrează-l
+        if (result.runnerId) {
+          localStorage.setItem('runnerId', result.runnerId);
+        }
+
+        // ✅ Redirect către feed
         navigate('/feedPage');
       } else {
-        setErrorMsg('Username sau parolă incorecte');
+        setErrorMsg('Invalid username or password');
       }
     } catch (error) {
       console.error('Login error:', error);
-      setErrorMsg('Eroare server. Încearcă mai târziu.');
+      setErrorMsg('Server error. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -75,7 +85,7 @@ export default function Login() {
           gap: 3,
         }}
       >
-        <Typography variant="h5" fontWeight={600} textAlign="center" color='#5D63D1'>
+        <Typography variant="h5" fontWeight={600} textAlign="center" color="#5D63D1">
           Welcome back
         </Typography>
 
@@ -95,6 +105,7 @@ export default function Login() {
             ),
           }}
         />
+
         <TextField
           label="Password"
           name="password"
@@ -124,13 +135,12 @@ export default function Login() {
         <Typography variant="body2" textAlign="center">
           Don't have an account?{' '}
           <span
-          onClick={() => navigate('/register')}
-          style={{ color: '#5D63D1', fontWeight: 'bold', cursor: 'pointer' }}
+            onClick={() => navigate('/register')}
+            style={{ color: '#5D63D1', fontWeight: 'bold', cursor: 'pointer' }}
           >
-          Sign up
+            Sign up
           </span>
         </Typography>
-
       </Box>
     </Box>
   );
