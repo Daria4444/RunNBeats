@@ -125,42 +125,55 @@ const Run = () => {
   };
 
   const handleSaveRun = async () => {
-    const paceSecondsPerKm = elapsed && totalDistance > 0 ? elapsed / (totalDistance / 1000) : 0;
-    const runData = {
-      distance: totalDistance / 1000,
-      duration: elapsed,
-      pace: paceSecondsPerKm / 60,
-      averageSpeed: totalDistance / (elapsed || 1),
-      path,
-      timestamp: new Date().toISOString(),
-      runnerId,
-      mapImageUrl: null,
-    };
+  const paceSecondsPerKm = elapsed && totalDistance > 0 ? elapsed / (totalDistance / 1000) : 0;
+  const runData = {
+    distance: totalDistance / 1000,
+    duration: elapsed,
+    pace: paceSecondsPerKm / 60,
+    averageSpeed: totalDistance / (elapsed || 1),
+    path,
+    timestamp: new Date().toISOString(),
+    runnerId,
+    mapImageUrl: null,
+  };
 
-    try {
-      const mapElement = document.getElementById("map");
-      if (mapElement) {
-        const canvas = await html2canvas(mapElement);
+  try {
+    if (mapInstance.current) {
+      leafletImage(mapInstance.current, async (err, canvas) => {
+        if (err) {
+          console.error("leaflet-image error:", err);
+          return;
+        }
+
         const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
         const formData = new FormData();
         formData.append("file", blob);
         formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-        const uploadRes = await fetch(CLOUDINARY_UPLOAD_URL, { method: "POST", body: formData });
+
+        const uploadRes = await fetch(CLOUDINARY_UPLOAD_URL, {
+          method: "POST",
+          body: formData,
+        });
+
         const uploadData = await uploadRes.json();
         runData.mapImageUrl = uploadData.secure_url;
-      }
 
-      await fetch(`${process.env.REACT_APP_API_URL}/api/v1/run/add`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` },
-        body: JSON.stringify(runData),
+        await fetch(`${process.env.REACT_APP_API_URL}/api/v1/run/add`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify(runData),
+        });
+
+        setSaveDialogOpen(false);
       });
-    } catch (err) {
-      console.error("Error saving run:", err);
     }
-
-    setSaveDialogOpen(false);
-  };
+  } catch (err) {
+    console.error("Error saving run:", err);
+  }
+};
 
   const handleAssistedRunStart = async () => {
     if (!selectedType) return;
