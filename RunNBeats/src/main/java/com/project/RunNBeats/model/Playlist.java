@@ -15,7 +15,6 @@ public class Playlist {
     private Runner runner;
     private String link;
     private String playlistName;
-    @Enumerated(EnumType.STRING)
     private PlaylistType  playlistType;
 
     public int getPlaylistId() {
