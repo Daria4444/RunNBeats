@@ -21,6 +21,7 @@ import {
 import html2canvas from "html2canvas";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import leafletImage from "leaflet-image";
 
 const Run = () => {
   const theme = useTheme();
@@ -44,6 +45,7 @@ const Run = () => {
   const runnerId = localStorage.getItem("runnerId");
   const CLOUDINARY_UPLOAD_URL = "https://api.cloudinary.com/v1_1/dw9vaqeyh/image/upload";
   const CLOUDINARY_UPLOAD_PRESET = "runnbeats_unsigned";
+
 
   const deg2rad = (deg) => deg * (Math.PI / 180);
 
