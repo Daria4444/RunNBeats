@@ -23,6 +23,33 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import leafletImage from "leaflet-image";
 
+
+// const switchPlaylistByType = (type) => {
+//   const filtered = playlists.filter(p => p.type === type);
+//   if (filtered.length === 0) return;
+
+//   // Alege un playlist aleatoriu din cele filtrate
+//   const newPlaylist = filtered[Math.floor(Math.random() * filtered.length)];
+//   const pid = extractYouTubePlaylistId(newPlaylist.link);
+
+//   // Verificam daca e deja redat acelaai playlist
+//   if (!pid || newPlaylist.playlistId === currentPlaylistId) return;
+
+//   // Oprește playerul curent daca exista
+//   if (currentPlaylistId && ytPlayers[currentPlaylistId]) {
+//     ytPlayers[currentPlaylistId].stopVideo();
+//   }
+
+//   // Pornește noul playlist
+//   const newPlayer = ytPlayers[newPlaylist.playlistId];
+//   if (newPlayer) {
+//     newPlayer.playVideo();
+//     setCurrentPlaylistId(newPlaylist.playlistId);
+//   }
+// };
+
+
+
 const Run = () => {
   const theme = useTheme();
   const mapRef = useRef(null);
@@ -210,6 +237,17 @@ const Run = () => {
       .then((res) => res.json())
       .then((data) => setPlaylists(data))
       .catch((err) => console.error("Failed to load playlists:", err));
+
+    // Simulare achievement hardcodata la montarea componentei
+    setUnlockedAchievements([
+      {
+        id: "test_achievement_001",
+        title: "Single Run Distance level GOLD",
+        description: "You completed a 10km run"
+      }
+    ]);
+    setAchievementDialogOpen(true);
+
   }, []);
 
   const extractYouTubePlaylistId = (url) => {
@@ -324,6 +362,74 @@ const Run = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Dialog
+  open={achievementDialogOpen}
+  onClose={() => setAchievementDialogOpen(false)}
+  PaperProps={{
+    sx: {
+      borderRadius: 4,
+      px: 3,
+      pt: 3,
+      pb: 2,
+      background: "linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%)",
+      boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
+      minWidth: 350,
+      maxWidth: 420,
+      textAlign: "center",
+      animation: "fadeInScale 0.4s ease-in-out",
+    },
+  }}
+>
+  <Box display="flex" flexDirection="column" alignItems="center">
+    <Box
+      sx={{
+        width: 80,
+        height: 80,
+        borderRadius: "50%",
+        backgroundColor: "#5d63d1",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        mb: 2,
+        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+      }}
+    >
+      <Typography variant="h3" component="div" sx={{ color: "white" }}>
+        🏅
+      </Typography>
+    </Box>
+
+    <Typography variant="h5" fontWeight="bold" sx={{ color: "#333", mb: 1 }}>
+      Achievement 10K Run Unlocked!
+    </Typography>
+
+    {unlockedAchievements.map((ach, idx) => (
+      <Box key={idx} mb={2}>
+        <Typography variant="h6" sx={{ color: "#5d63d1" }}>{ach.title}</Typography>
+        <Typography variant="body2" sx={{ color: "#555", mt: 0.5 }}>{ach.description}</Typography>
+      </Box>
+    ))}
+
+    <Button
+      onClick={() => setAchievementDialogOpen(false)}
+      variant="contained"
+      sx={{
+        backgroundColor: "#5d63d1",
+        color: "white",
+        px: 4,
+        borderRadius: 2,
+        mt: 1,
+        '&:hover': {
+          backgroundColor: "#3f45b2"
+        }
+      }}
+    >
+      Close
+    </Button>
+  </Box>
+</Dialog>
+
     </Box>
   );
 };

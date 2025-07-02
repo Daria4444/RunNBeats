@@ -42,6 +42,7 @@ const FeedPage = () => {
     });
 
     const data = await response.json();
+    //console.log("aiciiii" + data.secure_url)
     return data.secure_url;
   };
 

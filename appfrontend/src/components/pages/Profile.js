@@ -30,6 +30,14 @@ const Profile = () => {
   const id = runnerId || user?.runnerId;
   const isOwnProfile = !runnerId || parseInt(runnerId) === user?.runnerId;
 
+  const handleLogout = () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('username');
+  localStorage.removeItem('runnerId');
+  navigate('/'); // sau navigate('/login');
+  };
+
+
   useEffect(() => {
     if (!id) return;
 
@@ -89,8 +97,7 @@ const Profile = () => {
         {/* Logout Icon */}
         <IconButton
           color="inherit"
-          component={RouterLink}
-          to="/"
+          onClick={handleLogout}
           sx={{ position: 'absolute', top: 16, right: 16 }}
         >
           <LogoutIcon />
@@ -158,8 +165,11 @@ const Profile = () => {
         </Stack>
 
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} mt={4} justifyContent="space-between">
-          <StatBox title="Total Distance" value={`${profileUser.totalDistance} km`} />
+          {/*<StatBox title="Total Distance" value={`521 km`} />
           <StatBox title="Best Pace" value={'6:50 min/km'} />
+          <StatBox title="Total Runs" value={`50`} />*/}
+          <StatBox title="Total Distance" value={`${Math.round(profileUser.totalDistance / 100)} km`} />
+          <StatBox title="Best Pace" value={`${profileUser.bestPace} min/km`} />
           <StatBox title="Total Runs" value={`${profileUser.totalRuns}`} />
         </Stack>
 
